@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation</title>
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f9f9f9;
+      color: #222;
+    }
+
+    /* ── Sections ── */
+    section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 72px 24px 48px;
+    }
+
+    section h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 32px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e0e0e0;
+      color: #111;
+    }
+
+    /* Tighter gaps between content sections */
+    #method,
+    #generated-video,
+    #real-robot,
+    #conclusion,
+    #citation {
+      padding-top: 16px;
+    }
+
+    /* ── Overview ── */
+    .overview-placeholder {
+      background: #fff;
+      border: 1px dashed #ccc;
+      border-radius: 12px;
+      padding: 48px 32px;
+      text-align: center;
+      color: #aaa;
+      font-size: 16px;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Real Robot (interactive pairs) ── */
+    .rr-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    .rr-group {
+      cursor: pointer;
+    }
+
+    .rr-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 3px solid transparent;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    }
+
+    .rr-group:hover .rr-pair {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 4px rgba(26,115,232,0.18), 0 8px 24px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+    }
+
+    .rr-side {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      background: #0e0e0e;
+      overflow: hidden;
+    }
+
+    .rr-side video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .rr-prompt {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      text-align: left;
+      padding: 20px 24px;
+      background: #eef2f7;
+      color: #333;
+    }
+
+    .rr-prompt-tag {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #1a73e8;
+      margin-bottom: 8px;
+    }
+
+    .rr-prompt-text {
+      font-size: 16px;
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    .rr-label {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.62);
+      border-radius: 5px;
+      display: none;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* ── Generated Video grid ── */
+    .gen-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      column-gap: 16px;
+      row-gap: 18px;
+    }
+
+    .gen-col-label {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #1a73e8;
+      padding-bottom: 2px;
+    }
+
+    .gen-cell {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    }
+
+    .gen-cell:hover {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 3px rgba(26,115,232,0.15), 0 6px 18px rgba(0,0,0,0.12);
+      transform: translateY(-2px);
+    }
+
+    .gen-cell video {
+      width: 100%;
+      display: block;
+    }
+
+    .gen-mask {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 18px;
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.5;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+
+    .gen-cell:hover .gen-mask {
+      opacity: 1;
+    }
+
+    /* ── Paper header (Page-4D style) ── */
+    .paper-header {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 64px 24px 32px;
+      text-align: center;
+      font-family: 'Google Sans', 'Noto Sans', 'Segoe UI', Arial, sans-serif;
+    }
+
+    .paper-title {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.3;
+      color: #363636;
+      margin-bottom: 26px;
+    }
+
+    .paper-authors {
+      font-size: 20px;
+      line-height: 1.7;
+      color: #363636;
+      margin-bottom: 10px;
+    }
+
+    .paper-authors .author {
+      white-space: nowrap;
+    }
+
+    .paper-authors sup {
+      font-size: 0.62em;
+    }
+
+    .paper-affiliations {
+      font-size: 18px;
+      line-height: 1.7;
+      color: #4a4a4a;
+      margin-bottom: 14px;
+    }
+
+    .paper-affiliations .affil {
+      white-space: nowrap;
+      margin: 0 12px;
+      display: inline-block;
+    }
+
+    .paper-affiliations sup {
+      font-size: 0.62em;
+    }
+
+    .paper-notes {
+      font-size: 14px;
+      color: #888;
+      line-height: 1.7;
+    }
+
+    .paper-notes sup {
+      font-size: 0.85em;
+    }
+
+    /* ── Teaser figure ── */
+    .teaser {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 8px 24px 16px;
+    }
+
+    .teaser img {
+      width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .teaser-caption {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #666;
+      line-height: 1.7;
+      text-align: left;
+    }
+
+    /* ── Abstract & Method (Page-4D style) ── */
+    .paper-section {
+      font-family: 'Google Sans', 'Noto Sans', 'Segoe UI', Arial, sans-serif;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      color: #363636;
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 22px;
+    }
+
+    .section-content {
+      font-size: 18px;
+      line-height: 1.8;
+      color: #4a4a4a;
+      text-align: justify;
+    }
+
+    .section-content p + p {
+      margin-top: 16px;
+    }
+
+    /* ── Citation / BibTeX ── */
+    .bibtex-block {
+      position: relative;
+      margin-top: 16px;
+    }
+
+    .bibtex-block pre {
+      background: #f5f5f7;
+      border: 1px solid #e3e3e6;
+      border-radius: 8px;
+      padding: 20px 22px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.65;
+      color: #333;
+      font-family: 'SF Mono', 'Consolas', 'Menlo', monospace;
+      text-align: left;
+    }
+
+    .bibtex-copy {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      background: #1a73e8;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .bibtex-copy:hover {
+      background: #1666cf;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Paper header -->
+  <header class="paper-header">
+    <h1 class="paper-title">GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation</h1>
+    <div class="paper-authors">
+      <span class="author">Kaichen Zhou<sup>1,2,*</sup></span>,
+      <span class="author">Yuzhen Chen<sup>1,*</sup></span>,
+      <span class="author">Fangneng Zhan<sup>2</sup></span>,
+      <span class="author">Hang Hua<sup>4</sup></span>,
+      <span class="author">Grace Chen<sup>1</sup></span>,
+      <span class="author">Xinhai Chang<sup>2</sup></span>,
+      <span class="author">Ao Qu<sup>2</sup></span>,
+      <span class="author">Yilun Du<sup>1</sup></span>,
+      <span class="author">Zhuang Liu<sup>3</sup></span>,
+      <span class="author">Paul Pu Liang<sup>2,&dagger;</sup></span>,
+      <span class="author">Mengyu Wang<sup>1,&dagger;</sup></span>
+    </div>
+    <div class="paper-affiliations">
+      <span class="affil"><sup>1</sup>Harvard AI and Robotics Lab, Harvard University</span>
+      <span class="affil"><sup>2</sup>Media Lab and EECS, MIT</span>
+      <span class="affil"><sup>3</sup>Computer Science, Princeton University</span>
+      <span class="affil"><sup>4</sup>MIT-IBM Watson AI Lab</span>
+    </div>
+    <div class="paper-notes">
+      <sup>*</sup>Equal contribution as first authors. &nbsp;&nbsp; <sup>&dagger;</sup>Joint supervision.
+    </div>
+  </header>
+
+  <!-- Teaser figure -->
+  <div class="teaser">
+    <img src="Overview/teaser.jpg" alt="Teaser" />
+    <p class="teaser-caption">
+      <strong>Fig. 1: Overview.</strong> In this paper we propose a world-model robot vision planner system. By take the first observation as input, our world model GEM-4D predict a robot-based video, which is then used in the Dynamic Inverse System to extract robot policy. Finally, this policy is used in real robot experiments.
+    </p>
+  </div>
+
+  <!-- Abstract -->
+  <section id="overview" class="paper-section">
+    <h2 class="section-title">Abstract</h2>
+    <div class="section-content">
+      <p>
+        Video world models can generate realistic futures from a single instruction, but they often fail to preserve consistent point-level motion over time. As a result, the generated videos appear plausible, yet lack the physical grounding required for reliable action execution, such as robot manipulation. We present <strong>GEM-4D</strong>, a geometry-grounded video world model that resolves this limitation by injecting dense 4D correspondence supervision distilled from a pretrained geometry foundation model into the video generative backbone during training. This supervision enables the model to jointly capture appearance and geometric structure while retaining a single-stream architecture with no additional inference cost. We further introduce an inverse dynamics module that converts correspondence-consistent video rollouts into executable robot trajectories, enabling direct deployment in both real-world and simulated manipulation. <strong>GEM-4D</strong> achieves state-of-the-art performance on both video prediction and geometric consistency across both simulation and realistic scenarios, and improves real-world manipulation success from 61% to 81%.
+      </p>
+    </div>
+  </section>
+
+  <!-- Method -->
+  <section id="method" class="paper-section">
+    <h2 class="section-title">Method</h2>
+    <div class="section-content">
+      <p>
+        Method Overview. GEM-4D consists of two stages: geometry-consistent video world modeling and video-to-action extraction. First, we train a latent video DiT to generate future rollouts from an initial observation and a language instruction. Through <em>Geometry-Enhanced Velocity Alignment</em>, a frozen geometry foundation model and a parallel geometry DiT distill dense correspondence structure into the video backbone, encouraging rollouts to preserve depth, camera motion, and scene-flow consistency. At inference time, the geometry branch is discarded, so rollout generation remains as efficient as a single video DiT.
+      </p>
+      <p>
+        Second, an <em>Adaptive Inverse Dynamic System</em> converts the generated rollout into executable robot arm actions. It grounds the target object and end-effector in 3D, tracks the end-effector motion, adaptively corrects tracking or pose failures, and converts the recovered trajectory into robot commands through inverse kinematics.
+      </p>
+    </div>
+    <div style="margin-top: 40px;">
+      <img src="Overview/fig4.jpg" alt="Figure 2"
+           style="width: 100%; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);" />
+      <p style="margin-top: 14px; font-size: 14px; color: #666; line-height: 1.7; text-align: left;">
+        <strong>Fig. 2: Adaptive Inverse Dynamic System.</strong> Given a generated video as input, this system extracts a robot policy through the four steps illustrated in the figure.
+      </p>
+    </div>
+    <div style="margin-top: 40px;">
+      <img src="Overview/fig6.jpg" alt="Figure 3"
+           style="width: 100%; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);" />
+      <p style="margin-top: 14px; font-size: 14px; color: #666; line-height: 1.7; text-align: left;">
+        <strong>Fig. 3: Real-robot rollouts.</strong> From left: ground-truth video, GEM-4D-generated RGB, and the back-projected 3D point cloud. The model produces realistic and geometrically coherent rollouts under unseen backgrounds, supporting transfer to UF ARM manipulation.
+      </p>
+    </div>
+  </section>
+
+  <!-- Generated Video -->
+  <section id="generated-video" class="paper-section">
+    <h2 class="section-title">Generated Video</h2>
+    <div class="gen-grid">
+      <div class="gen-col-label">Droid</div>
+      <div class="gen-col-label">RLBench</div>
+      <div class="gen-col-label">Bridge</div>
+      <div class="gen-col-label">RT-1</div>
+
+      <div class="gen-cell" onclick="togglePlay(this)">
+        <video autoplay loop muted playsinline>
+          <source src="droid/droid1/our/web_video/ref8_val.mp4" type="video/mp4" />
+        </video>
+        <div class="gen-mask"><span>Pick up the lion and put it into the black bowl</span></div>
+      </div>
+      <div class="gen-cell" onclick="togglePlay(this)">
+        <video autoplay loop muted playsinline>
+          <source src="rlbench/rlbench1/our/web_video/ref8_val.mp4" type="video/mp4" />
+        </video>
+        <div class="gen-mask"><span>Close the middle drawer</span></div>
+      </div>
+      <div class="gen-cell" onclick="togglePlay(this)">
+        <video autoplay loop muted playsinline>
+          <source src="bridge/bridge1/our/web_video/ref8_val.mp4" type="video/mp4" />
+        </video>
+        <div class="gen-mask"><span>Sweep up the nuts</span></div>
+      </div>
+      <div class="gen-cell" onclick="togglePlay(this)">
+        <video autoplay loop muted playsinline>
+          <source src="rt1/rt11/our/web_video/ref8_val.mp4" type="video/mp4" />
+        </video>
+        <div class="gen-mask"><span>Pick up the coke and place it on the table</span></div>
+      </div>
+
+      <div class="gen-cell" onclick="togglePlay(this)">
+        <video autoplay loop muted playsinline>
+          <source src="droid/droid2/our/web_video/ref8_val.mp4" type="video/mp4" />
+        </video>
+        <div class="gen-mask"><span>Move the green cup</span></div>
+      </div>
+      <div class="gen-cell" onclick="togglePlay(this)">
+        <video autoplay loop muted playsinline>
+          <source src="rlbench/rlbench2/our/web_video/ref8_val.mp4" type="video/mp4" />
+        </video>
+        <div class="gen-mask"><span>Close the lid of the orange jar</span></div>
+      </div>
+      <div class="gen-cell" onclick="togglePlay(this)">
+        <video autoplay loop muted playsinline>
+          <source src="bridge/bridge2/our/web_video/ref8_val.mp4" type="video/mp4" />
+        </video>
+        <div class="gen-mask"><span>Fold the blue towel</span></div>
+      </div>
+      <div class="gen-cell" onclick="togglePlay(this)">
+        <video autoplay loop muted playsinline>
+          <source src="rt1/rt12/our/web_video/ref8_val.mp4" type="video/mp4" />
+        </video>
+        <div class="gen-mask"><span>Pick up the soda from the fridge</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Real Robot -->
+  <section id="real-robot" class="paper-section">
+    <h2 class="section-title">Real Robot</h2>
+    <div class="rr-grid">
+
+      <!-- Lift Numbered Block -->
+      <div class="rr-group" data-state="idle" onclick="rrPlay(this)">
+        <div class="rr-pair">
+          <div class="rr-side">
+            <video class="rr-gen" muted playsinline preload="auto"
+                   poster="real_world_demo/rlbench_real/Lift_Numbered_Block_Initial_Frame/rgb/000000.png">
+              <source src="real_world_demo/rlbench_real/Lift_Numbered_Block_Initial_Frame/rgb.mp4" type="video/mp4" />
+            </video>
+            <div class="rr-label rr-label-gen">Generated Video</div>
+          </div>
+          <div class="rr-side">
+            <video class="rr-real" muted playsinline preload="auto" style="display:none">
+              <source src="real_world_demo/ROW_ROBOT_DEMO/Lift_Numbered_Block_real_result/rgb_trimmed_05_22_2026__16_46_10.mp4" type="video/mp4" />
+            </video>
+            <div class="rr-label rr-label-real">Real Robot</div>
+            <div class="rr-prompt">
+              <span>
+                <span class="rr-prompt-tag">Prompt</span>
+                <span class="rr-prompt-text">Lift the numbered block with the number 3</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pickup Cup -->
+      <div class="rr-group" data-state="idle" onclick="rrPlay(this)">
+        <div class="rr-pair">
+          <div class="rr-side">
+            <video class="rr-gen" muted playsinline preload="auto"
+                   poster="real_world_demo/rlbench_real/Pickup_Cup_Initial_Frame/rgb/000000.png">
+              <source src="real_world_demo/rlbench_real/Pickup_Cup_Initial_Frame/rgb.mp4" type="video/mp4" />
+            </video>
+            <div class="rr-label rr-label-gen">Generated Video</div>
+          </div>
+          <div class="rr-side">
+            <video class="rr-real" muted playsinline preload="auto" style="display:none">
+              <source src="real_world_demo/ROW_ROBOT_DEMO/Pickup_Cup_real_result/rgb_trimmed_05_22_2026__16_46_39.mp4" type="video/mp4" />
+            </video>
+            <div class="rr-label rr-label-real">Real Robot</div>
+            <div class="rr-prompt">
+              <span>
+                <span class="rr-prompt-tag">Prompt</span>
+                <span class="rr-prompt-text">Pick up the orange cup</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pick Up Pepper -->
+      <div class="rr-group" data-state="idle" onclick="rrPlay(this)">
+        <div class="rr-pair">
+          <div class="rr-side">
+            <video class="rr-gen" muted playsinline preload="auto"
+                   poster="real_world_demo/rlbench_real/Pick_Up_Pepper_Initial_Frame/rgb/000000.png">
+              <source src="real_world_demo/rlbench_real/Pick_Up_Pepper_Initial_Frame/rgb.mp4" type="video/mp4" />
+            </video>
+            <div class="rr-label rr-label-gen">Generated Video</div>
+          </div>
+          <div class="rr-side">
+            <video class="rr-real" muted playsinline preload="auto" style="display:none">
+              <source src="real_world_demo/ROW_ROBOT_DEMO/picck_up_red_pepper_real_result/rgb_trimmed_05_22_2026__16_46_55.mp4" type="video/mp4" />
+            </video>
+            <div class="rr-label rr-label-real">Real Robot</div>
+            <div class="rr-prompt">
+              <span>
+                <span class="rr-prompt-tag">Prompt</span>
+                <span class="rr-prompt-text">Pick up the red pepper</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trash In Trashbin -->
+      <div class="rr-group" data-state="idle" onclick="rrPlay(this)">
+        <div class="rr-pair">
+          <div class="rr-side">
+            <video class="rr-gen" muted playsinline preload="auto"
+                   poster="real_world_demo/rlbench_real/Trash_In_Trashbin_Initial_Frame/rgb/000000.png">
+              <source src="real_world_demo/rlbench_real/Trash_In_Trashbin_Initial_Frame/rgb.mp4" type="video/mp4" />
+            </video>
+            <div class="rr-label rr-label-gen">Generated Video</div>
+          </div>
+          <div class="rr-side">
+            <video class="rr-real" muted playsinline preload="auto" style="display:none">
+              <source src="real_world_demo/ROW_ROBOT_DEMO/Trash_In_Trashbin_real_result/rgb_trimmed_05_22_2026__16_47_15.mp4" type="video/mp4" />
+            </video>
+            <div class="rr-label rr-label-real">Real Robot</div>
+            <div class="rr-prompt">
+              <span>
+                <span class="rr-prompt-tag">Prompt</span>
+                <span class="rr-prompt-text">Put the trash into the trash bin</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Conclusion -->
+  <section id="conclusion" class="paper-section">
+    <h2 class="section-title">Conclusion</h2>
+    <div class="section-content">
+      <p>
+        We present GEM-4D, a geometry-enhanced video world model for robot manipulation. GEM-4D distills geometric structure from foundation models during training, enabling future rollouts that are both visually realistic and correspondence-consistent, without adding inference cost. An adaptive inverse dynamics system further converts these rollouts into executable robot trajectories. Across real-world and simulated benchmarks, GEM-4D improves video prediction, geometric fidelity, and manipulation success, highlighting geometry-aware generation as a practical step toward reliable embodied world models.
+      </p>
+    </div>
+  </section>
+
+  <!-- Citation -->
+  <section id="citation" class="paper-section">
+    <h2 class="section-title">Citation</h2>
+    <div class="section-content">
+      <p>If you find our work useful, please cite our paper:</p>
+      <div class="bibtex-block">
+        <button class="bibtex-copy" onclick="copyBibtex(this)">Copy</button>
+        <pre><code>@inproceedings{zhou2026gem4d,
+  title     = {GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation},
+  author    = {Zhou, Kaichen and Chen, Yuzhen and Zhan, Fangneng and Hua, Hang and
+               Chen, Grace and Chang, Xinhai and Qu, Ao and Du, Yilun and
+               Liu, Zhuang and Liang, Paul Pu and Wang, Mengyu},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  year      = {2026}
+}</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Copy the BibTeX entry to the clipboard
+    function copyBibtex(btn) {
+      const code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      });
+    }
+
+    // Click to play / pause (Generated Video grid)
+    function togglePlay(card) {
+      const video = card.querySelector('video');
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
+    }
+
+    // Real Robot: click a scene to run first-frame -> generated -> real-robot
+    function rrPlay(group) {
+      if (group.dataset.state !== 'idle') return;   // ignore clicks mid-sequence
+      group.dataset.state = 'playing';
+      const gen = group.querySelector('.rr-gen');
+      const real = group.querySelector('.rr-real');
+      const prompt = group.querySelector('.rr-prompt');
+      // right side: prompt text -> real video (paused at its first frame)
+      prompt.style.display = 'none';
+      real.style.display = 'block';
+      real.pause();
+      real.currentTime = 0;
+      // show the "Generated Video" label on the left
+      group.querySelector('.rr-label-gen').style.display = 'block';
+      // left side: switch the first frame straight into the generated rollout
+      gen.currentTime = 0;
+      gen.play();
+    }
+
+    document.querySelectorAll('.rr-group').forEach(group => {
+      const gen = group.querySelector('.rr-gen');
+      const real = group.querySelector('.rr-real');
+      const prompt = group.querySelector('.rr-prompt');
+
+      // Pre-buffer the real-robot video at page load (still display:none, so
+      // invisible) so it can hand off from the generated rollout with no delay.
+      real.play().then(() => {
+        if (group.dataset.state === 'idle') {
+          real.pause();
+          real.currentTime = 0;
+        }
+      }).catch(() => {});
+
+      const genLabel = group.querySelector('.rr-label-gen');
+      const realLabel = group.querySelector('.rr-label-real');
+
+      // generated rollout finished -> it freezes on its last frame, real video starts
+      gen.addEventListener('ended', () => {
+        real.play();
+        realLabel.style.display = 'block';
+      });
+      // real-robot video finished -> reset back to the initial state
+      real.addEventListener('ended', () => {
+        real.pause();
+        real.currentTime = 0;
+        real.style.display = 'none';
+        prompt.style.display = '';
+        gen.pause();
+        gen.currentTime = 0;
+        genLabel.style.display = 'none';
+        realLabel.style.display = 'none';
+        group.dataset.state = 'idle';
+      });
+    });
+  </script>
+
+</body>
+</html>
