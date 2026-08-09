@@ -1,0 +1,33 @@
+{
+  "case": "droid2",
+  "duration": 3.875,
+  "methods": {
+    "gt": {
+      "frames": 31,
+      "fps": 8.0,
+      "grid": [
+        504,
+        378
+      ],
+      "masked": false
+    },
+    "gem4d": {
+      "frames": 27,
+      "fps": 6.9677,
+      "grid": [
+        504,
+        378
+      ],
+      "masked": false
+    },
+    "tesseract": {
+      "frames": 36,
+      "fps": 9.2903,
+      "grid": [
+        640,
+        480
+      ],
+      "masked": true
+    }
+  }
+}

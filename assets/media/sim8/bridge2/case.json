@@ -1,0 +1,33 @@
+{
+  "case": "bridge2",
+  "duration": 5.875,
+  "methods": {
+    "gt": {
+      "frames": 47,
+      "fps": 8.0,
+      "grid": [
+        504,
+        378
+      ],
+      "masked": false
+    },
+    "gem4d": {
+      "frames": 48,
+      "fps": 8.1702,
+      "grid": [
+        504,
+        378
+      ],
+      "masked": false
+    },
+    "tesseract": {
+      "frames": 27,
+      "fps": 4.5957,
+      "grid": [
+        640,
+        480
+      ],
+      "masked": true
+    }
+  }
+}

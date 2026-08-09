@@ -1,684 +1,1019 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" translate="no">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation</title>
-  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f9f9f9;
-      color: #222;
-    }
-
-    /* ── Sections ── */
-    section {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 72px 24px 48px;
-    }
-
-    section h2 {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 32px;
-      padding-bottom: 12px;
-      border-bottom: 2px solid #e0e0e0;
-      color: #111;
-    }
-
-    /* Tighter gaps between content sections */
-    #method,
-    #generated-video,
-    #real-robot,
-    #conclusion,
-    #citation {
-      padding-top: 16px;
-    }
-
-    /* ── Overview ── */
-    .overview-placeholder {
-      background: #fff;
-      border: 1px dashed #ccc;
-      border-radius: 12px;
-      padding: 48px 32px;
-      text-align: center;
-      color: #aaa;
-      font-size: 16px;
-      min-height: 200px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* ── Real Robot (interactive pairs) ── */
-    .rr-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 32px;
-    }
-
-    .rr-group {
-      cursor: pointer;
-    }
-
-    .rr-pair {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 3px solid transparent;
-      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-    }
-
-    .rr-group:hover .rr-pair {
-      border-color: #1a73e8;
-      box-shadow: 0 0 0 4px rgba(26,115,232,0.18), 0 8px 24px rgba(0,0,0,0.15);
-      transform: translateY(-2px);
-    }
-
-    .rr-side {
-      position: relative;
-      aspect-ratio: 4 / 3;
-      background: #0e0e0e;
-      overflow: hidden;
-    }
-
-    .rr-side video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-    }
-
-    .rr-prompt {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: flex-start;
-      text-align: left;
-      padding: 20px 24px;
-      background: #eef2f7;
-      color: #333;
-    }
-
-    .rr-prompt-tag {
-      display: block;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: #1a73e8;
-      margin-bottom: 8px;
-    }
-
-    .rr-prompt-text {
-      font-size: 16px;
-      line-height: 1.6;
-      font-style: italic;
-    }
-
-    .rr-label {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      padding: 5px 11px;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #fff;
-      background: rgba(0, 0, 0, 0.62);
-      border-radius: 5px;
-      display: none;
-      pointer-events: none;
-      z-index: 2;
-    }
-
-    /* ── Generated Video grid ── */
-    .gen-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      column-gap: 16px;
-      row-gap: 18px;
-    }
-
-    .gen-col-label {
-      text-align: center;
-      font-size: 14px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #1a73e8;
-      padding-bottom: 2px;
-    }
-
-    .gen-cell {
-      position: relative;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-    }
-
-    .gen-cell:hover {
-      border-color: #1a73e8;
-      box-shadow: 0 0 0 3px rgba(26,115,232,0.15), 0 6px 18px rgba(0,0,0,0.12);
-      transform: translateY(-2px);
-    }
-
-    .gen-cell video {
-      width: 100%;
-      display: block;
-    }
-
-    .gen-mask {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 18px;
-      background: rgba(0, 0, 0, 0.55);
-      color: #fff;
-      font-size: 15px;
-      font-weight: 600;
-      line-height: 1.5;
-      opacity: 0;
-      transition: opacity 0.2s;
-      pointer-events: none;
-    }
-
-    .gen-cell:hover .gen-mask {
-      opacity: 1;
-    }
-
-    /* ── Paper header (Page-4D style) ── */
-    .paper-header {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 64px 24px 32px;
-      text-align: center;
-      font-family: 'Google Sans', 'Noto Sans', 'Segoe UI', Arial, sans-serif;
-    }
-
-    .paper-title {
-      font-size: 32px;
-      font-weight: 700;
-      line-height: 1.3;
-      color: #363636;
-      margin-bottom: 26px;
-    }
-
-    .paper-authors {
-      font-size: 20px;
-      line-height: 1.7;
-      color: #363636;
-      margin-bottom: 10px;
-    }
-
-    .paper-authors .author {
-      white-space: nowrap;
-    }
-
-    .paper-authors sup {
-      font-size: 0.62em;
-    }
-
-    .paper-affiliations {
-      font-size: 18px;
-      line-height: 1.7;
-      color: #4a4a4a;
-      margin-bottom: 14px;
-    }
-
-    .paper-affiliations .affil {
-      white-space: nowrap;
-      margin: 0 12px;
-      display: inline-block;
-    }
-
-    .paper-affiliations sup {
-      font-size: 0.62em;
-    }
-
-    .paper-notes {
-      font-size: 14px;
-      color: #888;
-      line-height: 1.7;
-    }
-
-    .paper-notes sup {
-      font-size: 0.85em;
-    }
-
-    /* ── Teaser figure ── */
-    .teaser {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 8px 24px 16px;
-    }
-
-    .teaser img {
-      width: 100%;
-      border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
-
-    .teaser-caption {
-      margin-top: 14px;
-      font-size: 14px;
-      color: #666;
-      line-height: 1.7;
-      text-align: left;
-    }
-
-    /* ── Abstract & Method (Page-4D style) ── */
-    .paper-section {
-      font-family: 'Google Sans', 'Noto Sans', 'Segoe UI', Arial, sans-serif;
-    }
-
-    .section-title {
-      font-size: 24px;
-      font-weight: 700;
-      text-align: center;
-      color: #363636;
-      border-bottom: none;
-      padding-bottom: 0;
-      margin-bottom: 22px;
-    }
-
-    .section-content {
-      font-size: 18px;
-      line-height: 1.8;
-      color: #4a4a4a;
-      text-align: justify;
-    }
-
-    .section-content p + p {
-      margin-top: 16px;
-    }
-
-    /* ── Citation / BibTeX ── */
-    .bibtex-block {
-      position: relative;
-      margin-top: 16px;
-    }
-
-    .bibtex-block pre {
-      background: #f5f5f7;
-      border: 1px solid #e3e3e6;
-      border-radius: 8px;
-      padding: 20px 22px;
-      overflow-x: auto;
-      font-size: 13px;
-      line-height: 1.65;
-      color: #333;
-      font-family: 'SF Mono', 'Consolas', 'Menlo', monospace;
-      text-align: left;
-    }
-
-    .bibtex-copy {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 6px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #fff;
-      background: #1a73e8;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .bibtex-copy:hover {
-      background: #1666cf;
-    }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fbfcfd">
+  <meta name="google" content="notranslate">
+  <meta name="description" content="GEM-4D is a geometry-grounded video world model that distills dense 4D correspondence supervision into a video generative backbone at zero additional inference cost.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation">
+  <meta property="og:description" content="Geometry-grounded video world modelling with an adaptive inverse dynamics system for real-robot manipulation.">
+  <meta property="og:url" content="https://gem-4d.github.io/">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://gem-4d.github.io/">
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+  <title>GEM-4D | Geometry-Enhanced Video World Models for Robot Manipulation</title>
+  <link rel="preload" href="./assets/fonts/manrope-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="./assets/media/trash/depth_atlas.png" as="image" type="image/png">
+  <link rel="preload" href="./assets/media/trash/rgb_atlas.jpg" as="image" type="image/jpeg">
+  <link rel="stylesheet" href="./assets/css/site.css">
+  <script defer src="./assets/js/site.js"></script>
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
 
-  <!-- Paper header -->
-  <header class="paper-header">
-    <h1 class="paper-title">GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation</h1>
-    <div class="paper-authors">
-      <span class="author">Kaichen Zhou<sup>1,2,*</sup></span>,
-      <span class="author">Yuzhen Chen<sup>1,*</sup></span>,
-      <span class="author">Fangneng Zhan<sup>2</sup></span>,
-      <span class="author">Hang Hua<sup>4</sup></span>,
-      <span class="author">Grace Chen<sup>1</sup></span>,
-      <span class="author">Xinhai Chang<sup>2</sup></span>,
-      <span class="author">Ao Qu<sup>2</sup></span>,
-      <span class="author">Yilun Du<sup>1</sup></span>,
-      <span class="author">Zhuang Liu<sup>3</sup></span>,
-      <span class="author">Paul Pu Liang<sup>2,&dagger;</sup></span>,
-      <span class="author">Mengyu Wang<sup>1,&dagger;</sup></span>
-    </div>
-    <div class="paper-affiliations">
-      <span class="affil"><sup>1</sup>Harvard AI and Robotics Lab, Harvard University</span>
-      <span class="affil"><sup>2</sup>Media Lab and EECS, MIT</span>
-      <span class="affil"><sup>3</sup>Computer Science, Princeton University</span>
-      <span class="affil"><sup>4</sup>MIT-IBM Watson AI Lab</span>
-    </div>
-    <div class="paper-notes">
-      <sup>*</sup>Equal contribution as first authors. &nbsp;&nbsp; <sup>&dagger;</sup>Joint supervision.
+  <header class="site-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="#home" aria-label="GEM-4D home">GEM-4D</a>
+      <nav class="site-nav" aria-label="Primary navigation" data-nav>
+        <a href="#abstract">Abstract</a>
+        <a href="#comparison">Comparison</a>
+        <a href="#real-robot">Real robot</a>
+        <a href="#citation">Citation</a>
+      </nav>
+      <div class="header-actions">
+        <a class="button button-primary button-small" href="https://arxiv.org/abs/2605.22882" target="_blank" rel="noreferrer">Paper</a>
+        <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false" data-menu-button>
+          <span></span><span></span>
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- Teaser figure -->
-  <div class="teaser">
-    <img src="Overview/teaser.jpg" alt="Teaser" />
-    <p class="teaser-caption">
-      <strong>Fig. 1: Overview.</strong> In this paper we propose a world-model robot vision planner system. By take the first observation as input, our world model GEM-4D predict a robot-based video, which is then used in the Dynamic Inverse System to extract robot policy. Finally, this policy is used in real robot experiments.
-    </p>
-  </div>
+  <main id="main">
+    <section class="hero" id="home" data-section>
+      <div class="hero-grid">
+        <div class="hero-copy reveal">
+          <h1>GEM-4D</h1>
+          <p class="hero-title">Geometry-Enhanced Video World Models for Robot Manipulation</p>
+          <p class="hero-summary">A geometry-grounded video world model that distills dense 4D correspondence supervision into the video backbone during training, and converts the resulting rollouts into executable robot trajectories &mdash; at zero additional inference cost.</p>
+          <p class="authors" translate="no">
+            <span>Kaichen Zhou<sup>1,2,*</sup></span>
+            <span>Yuzhen Chen<sup>1,*</sup></span>
+            <span>Fangneng Zhan<sup>2</sup></span>
+            <span>Hang Hua<sup>4</sup></span>
+            <span>Grace Chen<sup>1</sup></span>
+            <span>Xinhai Chang<sup>2</sup></span>
+            <span>Ao Qu<sup>2</sup></span>
+            <span>Yilun Du<sup>1</sup></span>
+            <span>Zhuang Liu<sup>3</sup></span>
+            <span>Paul Pu Liang<sup>2,&dagger;</sup></span>
+            <span>Mengyu Wang<sup>1,&dagger;</sup></span>
+          </p>
+          <p class="affiliations" translate="no">
+            <span><sup>1</sup>Harvard AI and Robotics Lab, Harvard University</span>
+            <span><sup>2</sup>Media Lab and EECS, MIT</span>
+            <span><sup>3</sup>Computer Science, Princeton University</span>
+            <span><sup>4</sup>MIT-IBM Watson AI Lab</span>
+          </p>
+          <p class="contribution-note"><sup>*</sup> Equal contribution as first authors&nbsp;&nbsp; <sup>&dagger;</sup> Joint supervision</p>
+          <nav class="project-links" aria-label="Project resources">
+            <a class="project-link" href="https://arxiv.org/abs/2605.22882" target="_blank" rel="noreferrer">
+              <span>Paper</span><small>arXiv 2605.22882</small>
+            </a>
+            <a class="project-link" href="#citation">
+              <span>BibTeX</span><small>Citation</small>
+            </a>
+            <span class="link-anchor">
+              <button class="project-link" type="button" id="code-link" aria-describedby="code-note">
+                <span>Code</span><small>GitHub</small>
+              </button>
+              <span class="link-note" id="code-note" role="status" hidden>Coming soon</span>
+            </span>
+          </nav>
+        </div>
 
-  <!-- Abstract -->
-  <section id="overview" class="paper-section">
-    <h2 class="section-title">Abstract</h2>
-    <div class="section-content">
-      <p>
-        Video world models can generate realistic futures from a single instruction, but they often fail to preserve consistent point-level motion over time. As a result, the generated videos appear plausible, yet lack the physical grounding required for reliable action execution, such as robot manipulation. We present <strong>GEM-4D</strong>, a geometry-grounded video world model that resolves this limitation by injecting dense 4D correspondence supervision distilled from a pretrained geometry foundation model into the video generative backbone during training. This supervision enables the model to jointly capture appearance and geometric structure while retaining a single-stream architecture with no additional inference cost. We further introduce an inverse dynamics module that converts correspondence-consistent video rollouts into executable robot trajectories, enabling direct deployment in both real-world and simulated manipulation. <strong>GEM-4D</strong> achieves state-of-the-art performance on both video prediction and geometric consistency across both simulation and realistic scenarios, and improves real-world manipulation success from 61% to 81%.
-      </p>
-    </div>
-  </section>
-
-  <!-- Method -->
-  <section id="method" class="paper-section">
-    <h2 class="section-title">Method</h2>
-    <div class="section-content">
-      <p>
-        Method Overview. GEM-4D consists of two stages: geometry-consistent video world modeling and video-to-action extraction. First, we train a latent video DiT to generate future rollouts from an initial observation and a language instruction. Through <em>Geometry-Enhanced Velocity Alignment</em>, a frozen geometry foundation model and a parallel geometry DiT distill dense correspondence structure into the video backbone, encouraging rollouts to preserve depth, camera motion, and scene-flow consistency. At inference time, the geometry branch is discarded, so rollout generation remains as efficient as a single video DiT.
-      </p>
-      <p>
-        Second, an <em>Adaptive Inverse Dynamic System</em> converts the generated rollout into executable robot arm actions. It grounds the target object and end-effector in 3D, tracks the end-effector motion, adaptively corrects tracking or pose failures, and converts the recovered trajectory into robot commands through inverse kinematics.
-      </p>
-    </div>
-    <div style="margin-top: 40px;">
-      <img src="Overview/fig4.jpg" alt="Figure 2"
-           style="width: 100%; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);" />
-      <p style="margin-top: 14px; font-size: 14px; color: #666; line-height: 1.7; text-align: left;">
-        <strong>Fig. 2: Adaptive Inverse Dynamic System.</strong> Given a generated video as input, this system extracts a robot policy through the four steps illustrated in the figure.
-      </p>
-    </div>
-    <div style="margin-top: 40px;">
-      <img src="Overview/fig6.jpg" alt="Figure 3"
-           style="width: 100%; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);" />
-      <p style="margin-top: 14px; font-size: 14px; color: #666; line-height: 1.7; text-align: left;">
-        <strong>Fig. 3: Real-robot rollouts.</strong> From left: ground-truth video, GEM-4D-generated RGB, and the back-projected 3D point cloud. The model produces realistic and geometrically coherent rollouts under unseen backgrounds, supporting transfer to UF ARM manipulation.
-      </p>
-    </div>
-  </section>
-
-  <!-- Generated Video -->
-  <section id="generated-video" class="paper-section">
-    <h2 class="section-title">Generated Video</h2>
-    <div class="gen-grid">
-      <div class="gen-col-label">Droid</div>
-      <div class="gen-col-label">RLBench</div>
-      <div class="gen-col-label">Bridge</div>
-      <div class="gen-col-label">RT-1</div>
-
-      <div class="gen-cell" onclick="togglePlay(this)">
-        <video autoplay loop muted playsinline>
-          <source src="droid/droid1/our/web_video/ref8_val.mp4" type="video/mp4" />
-        </video>
-        <div class="gen-mask"><span>Pick up the lion and put it into the black bowl</span></div>
-      </div>
-      <div class="gen-cell" onclick="togglePlay(this)">
-        <video autoplay loop muted playsinline>
-          <source src="rlbench/rlbench1/our/web_video/ref8_val.mp4" type="video/mp4" />
-        </video>
-        <div class="gen-mask"><span>Close the middle drawer</span></div>
-      </div>
-      <div class="gen-cell" onclick="togglePlay(this)">
-        <video autoplay loop muted playsinline>
-          <source src="bridge/bridge1/our/web_video/ref8_val.mp4" type="video/mp4" />
-        </video>
-        <div class="gen-mask"><span>Sweep up the nuts</span></div>
-      </div>
-      <div class="gen-cell" onclick="togglePlay(this)">
-        <video autoplay loop muted playsinline>
-          <source src="rt1/rt11/our/web_video/ref8_val.mp4" type="video/mp4" />
-        </video>
-        <div class="gen-mask"><span>Pick up the coke and place it on the table</span></div>
-      </div>
-
-      <div class="gen-cell" onclick="togglePlay(this)">
-        <video autoplay loop muted playsinline>
-          <source src="droid/droid2/our/web_video/ref8_val.mp4" type="video/mp4" />
-        </video>
-        <div class="gen-mask"><span>Move the green cup</span></div>
-      </div>
-      <div class="gen-cell" onclick="togglePlay(this)">
-        <video autoplay loop muted playsinline>
-          <source src="rlbench/rlbench2/our/web_video/ref8_val.mp4" type="video/mp4" />
-        </video>
-        <div class="gen-mask"><span>Close the lid of the orange jar</span></div>
-      </div>
-      <div class="gen-cell" onclick="togglePlay(this)">
-        <video autoplay loop muted playsinline>
-          <source src="bridge/bridge2/our/web_video/ref8_val.mp4" type="video/mp4" />
-        </video>
-        <div class="gen-mask"><span>Fold the blue towel</span></div>
-      </div>
-      <div class="gen-cell" onclick="togglePlay(this)">
-        <video autoplay loop muted playsinline>
-          <source src="rt1/rt12/our/web_video/ref8_val.mp4" type="video/mp4" />
-        </video>
-        <div class="gen-mask"><span>Pick up the soda from the fridge</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Real Robot -->
-  <section id="real-robot" class="paper-section">
-    <h2 class="section-title">Real Robot</h2>
-    <div class="rr-grid">
-
-      <!-- Lift Numbered Block -->
-      <div class="rr-group" data-state="idle" onclick="rrPlay(this)">
-        <div class="rr-pair">
-          <div class="rr-side">
-            <video class="rr-gen" muted playsinline preload="auto"
-                   poster="real_world_demo/rlbench_real/Lift_Numbered_Block_Initial_Frame/rgb/000000.png">
-              <source src="real_world_demo/rlbench_real/Lift_Numbered_Block_Initial_Frame/rgb.mp4" type="video/mp4" />
-            </video>
-            <div class="rr-label rr-label-gen">Generated Video</div>
-          </div>
-          <div class="rr-side">
-            <video class="rr-real" muted playsinline preload="auto" style="display:none">
-              <source src="real_world_demo/ROW_ROBOT_DEMO/Lift_Numbered_Block_real_result/rgb_trimmed_05_22_2026__16_46_10.mp4" type="video/mp4" />
-            </video>
-            <div class="rr-label rr-label-real">Real Robot</div>
-            <div class="rr-prompt">
-              <span>
-                <span class="rr-prompt-tag">Prompt</span>
-                <span class="rr-prompt-text">Lift the numbered block with the number 3</span>
+        <div class="hero-media reveal reveal-delay">
+          <div class="hero-viewer-shell">
+            <div class="hero-viewer" id="rollout-viewer">
+              <img class="viewer-poster" id="rollout-poster"
+                   src="./assets/media/trash/poster.jpg" alt="GEM-4D 3D rollout of the trash-in-bin scene">
+              <p class="viewer-state" id="rollout-state">Loading the 3D rollout...</p>
+            </div>
+            <div class="viewer-caption">
+              <span class="viewer-caption-title"><i aria-hidden="true"></i>GEM-4D 3D rollout</span>
+              <span class="viewer-actions">
+                <button class="viewer-control viewer-reset" type="button" id="rollout-reset">Reset view</button>
+                <button class="viewer-control" type="button" id="rollout-detail"
+                        title="Fewer points render faster on slower machines">Detail: balanced</button>
+                <button class="viewer-control" type="button" id="rollout-center" aria-pressed="false">Centre</button>
+                <button class="viewer-control" type="button" id="rollout-toggle">Pause</button>
+                <span class="viewer-hint mono">Drag to orbit &middot; scroll to zoom</span>
               </span>
             </div>
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- Pickup Cup -->
-      <div class="rr-group" data-state="idle" onclick="rrPlay(this)">
-        <div class="rr-pair">
-          <div class="rr-side">
-            <video class="rr-gen" muted playsinline preload="auto"
-                   poster="real_world_demo/rlbench_real/Pickup_Cup_Initial_Frame/rgb/000000.png">
-              <source src="real_world_demo/rlbench_real/Pickup_Cup_Initial_Frame/rgb.mp4" type="video/mp4" />
-            </video>
-            <div class="rr-label rr-label-gen">Generated Video</div>
+    <!-- ══ Abstract ══════════════════════════════════════════════════ -->
+    <section class="section abstract-section" id="abstract" data-section>
+      <div class="section-inner">
+        <div class="abstract-grid">
+          <div class="section-copy reveal">
+            <h2 class="abstract-heading"><span>Plausible futures.</span><span>Consistent geometry.</span></h2>
+            <p class="lead">A rollout that looks right is not yet one you can act on.</p>
+            <p>
+              Video world models rarely keep the same physical point consistent across frames.
+              GEM-4D distills dense 4D correspondence from a frozen geometry model into the video
+              backbone during training, then drops that branch at inference.
+            </p>
+            <p>
+              What comes out is consistent enough to act on. An inverse dynamics system reads
+              6-DoF trajectories straight off the rollout, closing the loop from a language
+              instruction to a real arm with no task-specific training.
+            </p>
           </div>
-          <div class="rr-side">
-            <video class="rr-real" muted playsinline preload="auto" style="display:none">
-              <source src="real_world_demo/ROW_ROBOT_DEMO/Pickup_Cup_real_result/rgb_trimmed_05_22_2026__16_46_39.mp4" type="video/mp4" />
-            </video>
-            <div class="rr-label rr-label-real">Real Robot</div>
-            <div class="rr-prompt">
-              <span>
-                <span class="rr-prompt-tag">Prompt</span>
-                <span class="rr-prompt-text">Pick up the orange cup</span>
-              </span>
+
+          <div class="abstract-points reveal reveal-delay" role="list" aria-label="Contributions">
+            <div role="listitem">
+              <strong>Principle</strong>
+              <span>Geometry representations encode what governs correspondence. Predicting them
+                is enough &mdash; no correspondence loss.</span>
+            </div>
+            <div role="listitem">
+              <strong>Architecture</strong>
+              <span>A second branch trains the backbone, then disappears. Zero inference cost.</span>
+            </div>
+            <div role="listitem">
+              <strong>Inverse dynamics</strong>
+              <span>Rollout to executable 6-DoF trajectory. Real-robot success 61%&nbsp;&rarr;&nbsp;81%.</span>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Pick Up Pepper -->
-      <div class="rr-group" data-state="idle" onclick="rrPlay(this)">
-        <div class="rr-pair">
-          <div class="rr-side">
-            <video class="rr-gen" muted playsinline preload="auto"
-                   poster="real_world_demo/rlbench_real/Pick_Up_Pepper_Initial_Frame/rgb/000000.png">
-              <source src="real_world_demo/rlbench_real/Pick_Up_Pepper_Initial_Frame/rgb.mp4" type="video/mp4" />
-            </video>
-            <div class="rr-label rr-label-gen">Generated Video</div>
-          </div>
-          <div class="rr-side">
-            <video class="rr-real" muted playsinline preload="auto" style="display:none">
-              <source src="real_world_demo/ROW_ROBOT_DEMO/picck_up_red_pepper_real_result/rgb_trimmed_05_22_2026__16_46_55.mp4" type="video/mp4" />
-            </video>
-            <div class="rr-label rr-label-real">Real Robot</div>
-            <div class="rr-prompt">
-              <span>
-                <span class="rr-prompt-tag">Prompt</span>
-                <span class="rr-prompt-text">Pick up the red pepper</span>
-              </span>
+        <figure class="framework-figure reveal">
+          <div class="figure-surface">
+            <div class="figure-toolbar">
+              <span>Instruction and one observation, in &mdash; a 4D rollout, out</span>
+              <span>GEM-4D vs. TesserAct</span>
             </div>
+            <img src="./Overview/teaser.jpg" width="2153" height="1148" loading="lazy"
+                 alt="From an initial observation and a language instruction, GEM-4D predicts future RGB frames and a geometrically coherent point cloud; the TesserAct baseline deforms the manipulator and fails the task.">
           </div>
+          <figcaption>One instruction, one observation, a 4D rollout. TesserAct (right) deforms the arm; GEM-4D stays coherent enough to act&nbsp;on.</figcaption>
+        </figure>
+
+        <figure class="framework-figure framework-figure-second reveal">
+          <div class="figure-surface">
+            <div class="figure-toolbar">
+              <span>Adaptive Inverse Dynamic System</span>
+              <span>rollout &rarr; 6-DoF trajectory</span>
+            </div>
+            <img src="./Overview/fig4.jpg" width="4580" height="544" loading="lazy"
+                 alt="Four stages of the adaptive inverse dynamic system: 3D scene grounding with masks and end-effector pose, confidence-gated keypoint tracking, geometry-kinematics pose fallback, and grasp insertion with action synthesis.">
+          </div>
+          <figcaption>The rollout becomes a policy in four steps: 3D grounding, confidence-gated tracking, pose fallback, action&nbsp;synthesis.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ══ Side-by-side comparison ═══════════════════════════════════ -->
+    <section class="section comparison-section" id="comparison" data-section>
+      <div class="section-inner section-inner-wide">
+        <div class="section-heading reveal">
+          <h2>Side-by-side comparison</h2>
+          <p>Qualitative 4D scene generation on Droid, RLBench, Bridge and RT-1. TesserAct
+            generates plausible RGB but produces inconsistent depth; GEM-4D preserves geometric
+            structure across frames, yielding cleaner depth and tighter object boundaries.
+            In <b>3D</b>, dragging one panel turns all three.</p>
+        </div>
+
+        <div class="results-toolbar reveal">
+          <span class="seg" id="results-mode" role="group" aria-label="What the panels show">
+            <button type="button" data-mode="rgb" aria-pressed="true">RGB</button>
+            <button type="button" data-mode="cloud" aria-pressed="false">3D</button>
+          </span>
+          <button class="viewer-control" type="button" id="results-play">Pause</button>
+          <span class="seg-label" id="results-detail-label" hidden>points</span>
+          <span class="seg" id="results-detail" role="group" aria-label="Point cloud detail" hidden></span>
+          <button class="viewer-control" type="button" id="results-recentre" hidden>Recentre all</button>
+          <span class="results-clock" id="results-clock">&mdash;</span>
+        </div>
+
+        <p class="results-prompt reveal">
+          <span class="label">Prompt</span>
+          <span class="text" id="results-prompt">&mdash;</span>
+        </p>
+
+        <div class="results-row" id="results-row"></div>
+
+        <div class="case-tabs" id="results-cases" role="tablist" aria-label="Example tasks"></div>
+
+        <div class="metrics-block reveal">
+          <div class="metrics-intro">
+            <span class="section-kicker">4D scene prediction</span>
+            <h3>Appearance and geometry, measured</h3>
+            <p>RGB reconstruction, depth reconstruction and point correspondence, on a real
+              dataset and a simulated one. GEM-4D leads every column.</p>
+          </div>
+          <div class="table-wrap" tabindex="0" aria-label="Quantitative comparison on 4D scene generation">
+            <table class="metrics-table">
+              <thead>
+                <tr class="group-head">
+                  <th class="spacer"></th><th class="spacer"></th>
+                  <th colspan="3">RGB</th>
+                  <th colspan="3">Depth</th>
+                  <th>Points</th>
+                  <th>Tracking</th>
+                </tr>
+                <tr>
+                  <th scope="col">Domain</th>
+                  <th scope="col">Method</th>
+                  <th scope="col">FVD <span>&darr;</span></th>
+                  <th scope="col">SSIM <span>&uarr;</span></th>
+                  <th scope="col">PSNR <span>&uarr;</span></th>
+                  <th scope="col">AbsRel <span>&darr;</span></th>
+                  <th scope="col">&delta;<sub>1</sub> <span>&uarr;</span></th>
+                  <th scope="col">&delta;<sub>2</sub> <span>&uarr;</span></th>
+                  <th scope="col">Chamfer <span>&darr;</span></th>
+                  <th scope="col">&delta;<sup>vis</sup><sub>avg</sub> <span>&uarr;</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row" rowspan="5">Real (Droid)</th><td>CogVideoX</td><td>35.56</td><td>75.91</td><td>20.18</td><td>22.33</td><td>68.32</td><td>83.17</td><td>0.2670</td><td>66.22</td></tr>
+                <tr><td>Wan 2.2-14B</td><td>33.43</td><td class="second">76.24</td><td class="second">20.70</td><td class="second">21.39</td><td class="second">71.18</td><td class="second">84.35</td><td class="second">0.2349</td><td class="second">68.18</td></tr>
+                <tr><td>TesserAct</td><td>33.28</td><td>75.66</td><td>20.08</td><td>22.07</td><td>66.80</td><td>82.60</td><td>0.2630</td><td>67.14</td></tr>
+                <tr><td>Geometry-Forcing</td><td class="second">33.17</td><td>76.12</td><td>20.53</td><td>21.96</td><td>69.74</td><td>83.83</td><td>0.2443</td><td>67.97</td></tr>
+                <tr class="ours-row"><td>GEM-4D</td><td class="best">31.82</td><td class="best">82.05</td><td class="best">21.11</td><td class="best">20.13</td><td class="best">78.19</td><td class="best">88.21</td><td class="best">0.2001</td><td class="best">71.23</td></tr>
+                <tr><th scope="row" rowspan="5">Simulated (RLBench)</th><td>CogVideoX</td><td>40.21</td><td>75.51</td><td class="second">20.03</td><td>15.41</td><td class="second">70.99</td><td>92.90</td><td>0.2913</td><td>58.32</td></tr>
+                <tr><td>Wan 2.2-14B</td><td>49.20</td><td>73.01</td><td>19.87</td><td>17.81</td><td>67.07</td><td>90.16</td><td>0.1762</td><td class="second">61.99</td></tr>
+                <tr><td>TesserAct</td><td>41.97</td><td>76.72</td><td>19.71</td><td>16.02</td><td>69.26</td><td class="second">93.03</td><td>0.1813</td><td>61.15</td></tr>
+                <tr><td>Geometry-Forcing</td><td class="second">34.06</td><td class="second">77.92</td><td>19.48</td><td class="second">15.34</td><td>68.96</td><td>92.80</td><td class="second">0.1488</td><td>60.84</td></tr>
+                <tr class="ours-row"><td>GEM-4D</td><td class="best">27.94</td><td class="best">80.27</td><td class="best">23.36</td><td class="best">14.11</td><td class="best">74.13</td><td class="best">95.01</td><td class="best">0.0702</td><td class="best">68.18</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="metrics-legend">Bold = best, underlined = second best. Std. dev. across 20 generations is 1&ndash;2%.</p>
         </div>
       </div>
+    </section>
 
-      <!-- Trash In Trashbin -->
-      <div class="rr-group" data-state="idle" onclick="rrPlay(this)">
-        <div class="rr-pair">
-          <div class="rr-side">
-            <video class="rr-gen" muted playsinline preload="auto"
-                   poster="real_world_demo/rlbench_real/Trash_In_Trashbin_Initial_Frame/rgb/000000.png">
-              <source src="real_world_demo/rlbench_real/Trash_In_Trashbin_Initial_Frame/rgb.mp4" type="video/mp4" />
-            </video>
-            <div class="rr-label rr-label-gen">Generated Video</div>
+    <!-- ══ Real-robot deployment ═════════════════════════════════════ -->
+    <section class="section realrobot-section" id="real-robot" data-section>
+      <div class="section-inner section-inner-wide">
+        <div class="section-heading reveal">
+          <h2>From a rollout to a real robot arm</h2>
+          <p>From an initial observation, through GEM-4D-predicted future frames, to executed UF
+            arm actions &mdash; the inverse dynamics system extracts the policy from the rollout
+            without any task-specific training.</p>
+        </div>
+
+        <div class="results-toolbar reveal">
+          <span class="seg" id="real-mode" role="group" aria-label="What the middle panel shows">
+            <button type="button" data-mode="rgb" aria-pressed="true">RGB</button>
+            <button type="button" data-mode="cloud" aria-pressed="false">3D</button>
+          </span>
+          <button class="viewer-control" type="button" id="real-play">Pause</button>
+          <span class="seg-label" id="real-detail-label" hidden>points</span>
+          <span class="seg" id="real-detail" role="group" aria-label="Point cloud detail" hidden></span>
+        </div>
+
+        <div class="pipeline reveal" id="real-row"></div>
+
+        <div class="case-tabs case-tabs-four" id="real-cases" role="tablist" aria-label="Real-robot tasks"></div>
+
+        <div class="metrics-block reveal">
+          <div class="metrics-intro">
+            <span class="section-kicker">Embodied action planning</span>
+            <h3>Does the rollout actually work</h3>
+            <p>Real-robot success is scored by a 15-participant human study on Droid; the RLBench
+              figures come from replaying the extracted trajectories in the simulator.</p>
           </div>
-          <div class="rr-side">
-            <video class="rr-real" muted playsinline preload="auto" style="display:none">
-              <source src="real_world_demo/ROW_ROBOT_DEMO/Trash_In_Trashbin_real_result/rgb_trimmed_05_22_2026__16_47_15.mp4" type="video/mp4" />
-            </video>
-            <div class="rr-label rr-label-real">Real Robot</div>
-            <div class="rr-prompt">
-              <span>
-                <span class="rr-prompt-tag">Prompt</span>
-                <span class="rr-prompt-text">Put the trash into the trash bin</span>
-              </span>
-            </div>
+          <div class="table-wrap" tabindex="0" aria-label="Task success rates">
+            <table class="metrics-table">
+              <thead>
+                <tr class="group-head">
+                  <th class="spacer"></th>
+                  <th colspan="3">Droid &middot; real robot</th>
+                  <th colspan="7">RLBench &middot; simulator</th>
+                </tr>
+                <tr>
+                  <th scope="col">Method</th>
+                  <th scope="col">AUTOLab</th>
+                  <th scope="col">CLVR</th>
+                  <th scope="col">RAIL</th>
+                  <th scope="col">Lift Numbered Block</th>
+                  <th scope="col">Put Rubbish In Bin</th>
+                  <th scope="col">Reach Target</th>
+                  <th scope="col">Lamp On</th>
+                  <th scope="col">Pick Up Cup</th>
+                  <th scope="col">Slide Block To Target</th>
+                  <th scope="col">Solve Puzzle</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>CogVideoX</td><td>49</td><td>64</td><td>39</td><td class="na">&ndash;</td><td class="na">&ndash;</td><td class="na">&ndash;</td><td class="na">&ndash;</td><td class="na">&ndash;</td><td class="na">&ndash;</td><td class="na">&ndash;</td></tr>
+                <tr><td>TesserAct</td><td class="second">58</td><td class="second">65</td><td class="second">59</td><td class="second">21</td><td class="second">0</td><td class="second">2</td><td class="second">36</td><td class="second">49</td><td class="second">18</td><td class="second">33</td></tr>
+                <tr class="ours-row"><td>GEM-4D</td><td class="best">75</td><td class="best">83</td><td class="best">87</td><td class="best">78</td><td class="best">75</td><td class="best">82</td><td class="best">67</td><td class="best">81</td><td class="best">80</td><td class="best">63</td></tr>
+              </tbody>
+            </table>
           </div>
+          <p class="metrics-legend">Success rate in %. Bold = best, underlined = second best.
+            CogVideoX has no RLBench numbers: most of its rollouts could not be processed into a
+            trajectory at all. TesserAct's inverse dynamics is not public, so its rollouts were run
+            through ours.</p>
         </div>
       </div>
+    </section>
 
+
+    <section class="section citation-section" id="citation" data-section>
+      <div class="section-inner citation-layout">
+        <div class="citation-copy reveal">
+          <h2>Citation</h2>
+          <p>Please cite the preprint if GEM-4D supports your research.</p>
+        </div>
+        <div class="citation-code reveal reveal-delay">
+          <div class="citation-toolbar">
+            <span>BibTeX</span>
+            <button type="button" class="copy-button" data-copy-citation>Copy</button>
+          </div>
+          <pre translate="no"><code id="bibtex">@article{zhou2026gem4d,
+  title   = {GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation},
+  author  = {Zhou, Kaichen and Chen, Yuzhen and Zhan, Fangneng and Hua, Hang and
+             Chen, Grace and Chang, Xinhai and Qu, Ao and Du, Yilun and
+             Liu, Zhuang and Liang, Paul Pu and Wang, Mengyu},
+  journal = {arXiv preprint arXiv:2605.22882},
+  year    = {2026}
+}</code></pre>
+          <p class="copy-status" aria-live="polite" data-copy-status></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <a class="brand" href="#home">GEM-4D</a>
+      <p>Geometry-enhanced video world models for robot manipulation.</p>
+      <p>&copy; 2026 GEM-4D authors.</p>
     </div>
-  </section>
-
-  <!-- Conclusion -->
-  <section id="conclusion" class="paper-section">
-    <h2 class="section-title">Conclusion</h2>
-    <div class="section-content">
-      <p>
-        We present GEM-4D, a geometry-enhanced video world model for robot manipulation. GEM-4D distills geometric structure from foundation models during training, enabling future rollouts that are both visually realistic and correspondence-consistent, without adding inference cost. An adaptive inverse dynamics system further converts these rollouts into executable robot trajectories. Across real-world and simulated benchmarks, GEM-4D improves video prediction, geometric fidelity, and manipulation success, highlighting geometry-aware generation as a practical step toward reliable embodied world models.
-      </p>
-    </div>
-  </section>
-
+  </footer>
   <script>
-    // Copy the BibTeX entry to the clipboard
-    function copyBibtex(btn) {
-      const code = btn.parentElement.querySelector('code').innerText;
-      navigator.clipboard.writeText(code).then(() => {
-        const original = btn.textContent;
-        btn.textContent = 'Copied!';
-        setTimeout(() => { btn.textContent = original; }, 1500);
-      });
-    }
+    /* Report why the viewer never appeared. A module that fails to load never
+       runs its own try/catch, so the failure has to be caught from outside. */
+    (function () {
+      var status = document.getElementById('rollout-state');
+      if (!status) return;
 
-    // Click to play / pause (Generated Video grid)
-    function togglePlay(card) {
-      const video = card.querySelector('video');
-      if (video.paused) {
-        video.play();
-      } else {
-        video.pause();
+      function fail(message) {
+        if (!status.isConnected) return;
+        status.textContent = message;
+        ['rollout-toggle', 'rollout-center', 'rollout-reset', 'rollout-detail'].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) el.remove();
+        });
+        var hint = document.querySelector('.viewer-hint');
+        if (hint) hint.remove();
       }
-    }
 
-    // Real Robot: click a scene to run first-frame -> generated -> real-robot
-    function rrPlay(group) {
-      if (group.dataset.state !== 'idle') return;   // ignore clicks mid-sequence
-      group.dataset.state = 'playing';
-      const gen = group.querySelector('.rr-gen');
-      const real = group.querySelector('.rr-real');
-      const prompt = group.querySelector('.rr-prompt');
-      // right side: prompt text -> real video (paused at its first frame)
-      prompt.style.display = 'none';
-      real.style.display = 'block';
-      real.pause();
-      real.currentTime = 0;
-      // show the "Generated Video" label on the left
-      group.querySelector('.rr-label-gen').style.display = 'block';
-      // left side: switch the first frame straight into the generated rollout
-      gen.currentTime = 0;
-      gen.play();
-    }
+      if (location.protocol === 'file:') {
+        fail('This page must be served over http:// — opened straight from disk the '
+           + 'browser blocks the module and the rollout data. Run '
+           + '"python3 -m http.server" in this folder and open http://localhost:8000/.');
+        return;
+      }
 
-    document.querySelectorAll('.rr-group').forEach(group => {
-      const gen = group.querySelector('.rr-gen');
-      const real = group.querySelector('.rr-real');
-      const prompt = group.querySelector('.rr-prompt');
-
-      // Pre-buffer the real-robot video at page load (still display:none, so
-      // invisible) so it can hand off from the generated rollout with no delay.
-      real.play().then(() => {
-        if (group.dataset.state === 'idle') {
-          real.pause();
-          real.currentTime = 0;
+      window.addEventListener('error', function (event) {
+        if (event.target && event.target.tagName === 'SCRIPT') {
+          fail('The viewer script failed to load: ' + (event.target.src || '(inline)'));
         }
-      }).catch(() => {});
+      }, true);
 
-      const genLabel = group.querySelector('.rr-label-gen');
-      const realLabel = group.querySelector('.rr-label-real');
-
-      // generated rollout finished -> it freezes on its last frame, real video starts
-      gen.addEventListener('ended', () => {
-        real.play();
-        realLabel.style.display = 'block';
-      });
-      // real-robot video finished -> reset back to the initial state
-      real.addEventListener('ended', () => {
-        real.pause();
-        real.currentTime = 0;
-        real.style.display = 'none';
-        prompt.style.display = '';
-        gen.pause();
-        gen.currentTime = 0;
-        genLabel.style.display = 'none';
-        realLabel.style.display = 'none';
-        group.dataset.state = 'idle';
-      });
-    });
+      /* Only catches "the module never executed" (blocked import, bad MIME, no
+         module support). A slow first paint must not trip it. */
+      window.__rolloutStarted = false;
+      setTimeout(function () {
+        if (!window.__rolloutStarted) {
+          fail('The viewer module never ran. Open the browser console for the reason.');
+        }
+      }, 8000);
+    })();
   </script>
+  <script type="importmap">
+    { "imports": { "three": "./assets/vendor/three.module.min.js" } }
+  </script>
+  <script type="module">
+    import { createPointCloudViewer } from './assets/js/pointcloud-viewer.js';
+    window.__rolloutStarted = true;
 
+    const stage = document.getElementById('rollout-viewer');
+    const status = document.getElementById('rollout-state');
+    const toggle = document.getElementById('rollout-toggle');
+    const reset = document.getElementById('rollout-reset');
+    const centre = document.getElementById('rollout-center');
+    const detailButton = document.getElementById('rollout-detail');
+
+    try {
+      /* Visitors on weaker hardware can trade detail for frame rate. The choice is
+         remembered so it applies on the next visit too. */
+      /* Point count is the main render cost. The hero starts at `balanced`:
+         at this size stride 4 turns the arm visibly blocky, stride 3 does not. */
+      const DETAIL = [
+        { label: 'light', stride: 4 },
+        { label: 'balanced', stride: 3 },
+        { label: 'detailed', stride: 2 },
+        { label: 'full', stride: 1 },
+      ];
+      const stored = Number(localStorage.getItem('gem4d-detail'));
+      let level = DETAIL.findIndex((d) => d.stride === stored);
+      if (level < 0) level = DETAIL.findIndex((d) => d.label === 'balanced');
+
+      const viewer = await createPointCloudViewer(stage, {
+        basePath: './assets/media/trash',
+        stride: DETAIL[level].stride,
+      });
+      status.remove();
+      document.getElementById('rollout-poster')?.remove();
+      toggle.addEventListener('click', () => {
+        toggle.textContent = viewer.toggle() ? 'Pause' : 'Play';
+      });
+      reset.addEventListener('click', () => viewer.resetView());
+
+      const detail = document.getElementById('rollout-detail');
+      const showDetail = () => { detail.textContent = 'Detail: ' + DETAIL[level].label; };
+      showDetail();
+      detail.addEventListener('click', () => {
+        level = (level + 1) % DETAIL.length;
+        viewer.setStride(DETAIL[level].stride);
+        localStorage.setItem('gem4d-detail', String(DETAIL[level].stride));
+        showDetail();
+      });
+      centre.addEventListener('click', () => {
+        const sweeping = viewer.setSweep(!viewer.sweeping);
+        centre.textContent = sweeping ? 'Centre' : 'Sweep';
+        centre.setAttribute('aria-pressed', String(!sweeping));
+      });
+    } catch (error) {
+      console.error(error);
+      status.textContent = 'The 3D rollout could not be loaded: ' + error.message;
+      [toggle, centre, reset, detailButton].forEach((el) => el?.remove());
+      document.querySelector('.viewer-hint')?.remove();
+    }
+
+    /* ══ Interactive results ══════════════════════════════════════════════
+       Eight cases, three methods each. The clips differ in length, so each is
+       trimmed where its own pipeline recorded the end and re-timed to a shared
+       duration: all three start together and finish together. In 3D the three
+       panels share a single orbit. */
+    (async function results() {
+      const BASE = './assets/media/sim8';
+      const METHODS = [
+        { key: 'gt', label: 'Ground truth', note: 'recorded' },
+        { key: 'gem4d', label: 'GEM-4D', note: 'ours', ours: true },
+        { key: 'tesseract', label: 'TesserAct', note: 'baseline' },
+      ];
+      const DETAIL = [
+        { label: 'light', stride: 4 },
+        { label: 'balanced', stride: 3 },
+        { label: 'detailed', stride: 2 },
+        { label: 'full', stride: 1 },
+      ];
+      const END_HOLD_MS = 1000;
+
+      const row = document.getElementById('results-row');
+      if (!row) return;
+
+      let manifest;
+      try {
+        manifest = await (await fetch(`${BASE}/cases.json`)).json();
+      } catch (error) {
+        row.innerHTML = '<p class="result-state">The result clips could not be loaded.</p>';
+        return;
+      }
+
+      const promptOut = document.getElementById('results-prompt');
+      const clock = document.getElementById('results-clock');
+      const play = document.getElementById('results-play');
+      const detailSeg = document.getElementById('results-detail');
+      const detailLabel = document.getElementById('results-detail-label');
+      const recentre = document.getElementById('results-recentre');
+      const tabs = document.getElementById('results-cases');
+
+      let playing = true;
+      let holding = false;
+      let mode = 'rgb';
+      let detailLevel = 0;
+      let current = null;
+      let token = 0;                       // guards against a slow case switch landing late
+
+      const cells = {};
+      for (const m of METHODS) {
+        const cell = document.createElement('div');
+        cell.innerHTML = `
+          <div class="result-cell-head${m.ours ? ' is-ours' : ''}"><b>${m.label}</b><span>${m.note}</span></div>
+          <div class="result-stage">
+            <div class="result-holder" data-kind="rgb"><video muted playsinline preload="auto"></video></div>
+            <div class="result-holder" data-kind="cloud" hidden></div>
+          </div>`;
+        row.append(cell);
+        cells[m.key] = {
+          meta: m,
+          video: cell.querySelector('video'),
+          rgb: cell.querySelector('[data-kind="rgb"]'),
+          cloud: cell.querySelector('[data-kind="cloud"]'),
+          viewer: null,
+        };
+      }
+
+      const leader = cells.gt.video;
+      const followers = [cells.gem4d.video, cells.tesseract.video];
+
+      /* The clips share a duration but decode independently and drift a frame or
+         two per loop; nudge the followers back onto the leader's clock. */
+      function resync(force = false) {
+        for (const v of followers) {
+          if (force || Math.abs(v.currentTime - leader.currentTime) > 0.06) {
+            v.currentTime = leader.currentTime;
+          }
+        }
+      }
+      leader.addEventListener('seeked', () => resync(true));
+      setInterval(() => {
+        if (!leader.paused) resync();
+        if (current) clock.textContent = `${leader.currentTime.toFixed(2)} / ${current.duration.toFixed(2)} s`;
+      }, 250);
+
+      /* Hold on the final frame, then restart everything together. */
+      leader.addEventListener('ended', async () => {
+        if (holding || !playing) return;
+        holding = true;
+        followers.forEach((v) => v.pause());
+        Object.values(cells).forEach((c) => c.viewer && c.viewer.playing && c.viewer.toggle());
+        await new Promise((res) => setTimeout(res, END_HOLD_MS));
+        holding = false;
+        if (!playing) return;
+        Object.values(cells).forEach((c) => {
+          c.video.currentTime = 0;
+          c.video.play();
+          if (c.viewer) {
+            c.viewer.setFrame(0);
+            if (!c.viewer.playing) c.viewer.toggle();
+          }
+        });
+      });
+
+      /* One orbit for all three panels. The clouds differ in intrinsics, scale
+         and depth range, so what travels between them is the orbit itself --
+         azimuth, elevation, and distance relative to each panel's own framing. */
+      let linking = false;
+      function linkView(sourceKey, view) {
+        if (linking) return;
+        linking = true;
+        for (const [key, cell] of Object.entries(cells)) {
+          if (key !== sourceKey && cell.viewer) cell.viewer.setView(view);
+        }
+        linking = false;
+      }
+
+      function disposeViewers() {
+        for (const cell of Object.values(cells)) {
+          if (cell.viewer) { cell.viewer.dispose(); cell.viewer = null; }
+          cell.cloud.innerHTML = '';
+        }
+      }
+
+      async function ensureViewer(cell, id, mine) {
+        if (cell.viewer || token !== mine) return;
+        cell.cloud.innerHTML = '<p class="result-state">loading geometry…</p>';
+        try {
+          const viewer = await createPointCloudViewer(cell.cloud, {
+            basePath: `${BASE}/${id}/${cell.meta.key}`,
+            loop: false,
+            manual: true,
+            stride: DETAIL[detailLevel].stride,
+            onView: (view) => linkView(cell.meta.key, view),
+          });
+          if (token !== mine) { viewer.dispose(); return; }   // a newer case won
+          cell.viewer = viewer;
+          cell.cloud.querySelector('.result-state')?.remove();
+          viewer.setSweep(false);
+          if (!playing) viewer.toggle();
+        } catch (error) {
+          console.error(error);
+          const state = cell.cloud.querySelector('.result-state');
+          if (state) state.textContent = 'geometry unavailable';
+        }
+      }
+
+      let ready = false;   // suppress the tab-strip scroll on the first, offscreen selection
+
+      async function selectCase(id) {
+        const mine = ++token;
+        const entry = manifest.cases.find((c) => c.id === id);
+        const info = await (await fetch(`${BASE}/${id}/case.json`)).json();
+        if (token !== mine) return;
+        current = info;
+
+        promptOut.textContent = `\u201c${entry.prompt}\u201d`;
+        tabs.querySelectorAll('button').forEach((b) => {
+          const on = b.dataset.case === id;
+          b.setAttribute('aria-selected', String(on));
+          // scroll the strip itself, never the page -- scrollIntoView would jump
+          // the document on first paint, when the tabs are still below the fold
+          if (on && ready) {
+            const pad = 12;
+            const left = b.offsetLeft - pad;
+            const right = b.offsetLeft + b.offsetWidth + pad - tabs.clientWidth;
+            if (left < tabs.scrollLeft) tabs.scrollTo({ left, behavior: 'smooth' });
+            else if (right > tabs.scrollLeft) tabs.scrollTo({ left: right, behavior: 'smooth' });
+          }
+        });
+
+        disposeViewers();
+        for (const m of METHODS) {
+          cells[m.key].video.src = `${BASE}/${id}/${m.key}/clip.mp4`;
+        }
+
+        await Promise.all(Object.values(cells).map((c) => new Promise((res) => {
+          if (c.video.readyState >= 2) return res();
+          c.video.addEventListener('loadeddata', res, { once: true });
+        })));
+        if (token !== mine) return;
+        resync(true);
+        if (playing) Object.values(cells).forEach((c) => c.video.play());
+        if (mode === 'cloud') await Promise.all(Object.values(cells).map((c) => ensureViewer(c, id, mine)));
+      }
+
+      /* ── controls ─────────────────────────────────────────────────────── */
+
+      play.addEventListener('click', () => {
+        playing = !playing;
+        play.textContent = playing ? 'Pause' : 'Play';
+        Object.values(cells).forEach((c) => {
+          if (playing) c.video.play(); else c.video.pause();
+          if (c.viewer && c.viewer.playing !== playing) c.viewer.toggle();
+        });
+      });
+
+      DETAIL.forEach((tier, i) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = tier.label;
+        button.setAttribute('aria-pressed', String(i === detailLevel));
+        button.addEventListener('click', () => {
+          detailLevel = i;
+          detailSeg.querySelectorAll('button')
+            .forEach((b, j) => b.setAttribute('aria-pressed', String(j === i)));
+          Object.values(cells).forEach((c) => c.viewer && c.viewer.setStride(tier.stride));
+        });
+        detailSeg.append(button);
+      });
+
+      recentre.addEventListener('click', () => {
+        Object.values(cells).forEach((c) => c.viewer && c.viewer.reframe());
+      });
+
+      document.getElementById('results-mode').addEventListener('click', async (event) => {
+        const button = event.target.closest('button');
+        if (!button) return;
+        mode = button.dataset.mode;
+        event.currentTarget.querySelectorAll('button')
+          .forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+
+        const is3d = mode === 'cloud';
+        // these controls mean nothing while the panels are showing video
+        detailSeg.hidden = !is3d;
+        detailLabel.hidden = !is3d;
+        recentre.hidden = !is3d;
+
+        for (const cell of Object.values(cells)) {
+          cell.rgb.hidden = is3d;
+          cell.cloud.hidden = !is3d;
+        }
+        if (is3d && current) {
+          const mine = token;
+          await Promise.all(Object.values(cells).map((c) => ensureViewer(c, current.case, mine)));
+        }
+      });
+
+      /* ── case picker ──────────────────────────────────────────────────── */
+
+      for (const entry of manifest.cases) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.role = 'tab';
+        button.dataset.case = entry.id;
+        button.setAttribute('aria-selected', 'false');
+        button.innerHTML = `
+          <img class="case-tab-preview" src="${BASE}/${entry.id}/thumb.jpg" alt="" loading="lazy">
+          <span class="case-tab-copy">
+            <span class="case-tab-dataset">${entry.dataset}</span>
+            <span class="case-tab-title">${entry.prompt}</span>
+          </span>`;
+        button.addEventListener('click', () => selectCase(entry.id));
+        tabs.append(button);
+      }
+
+      await selectCase(manifest.cases[0].id);
+      ready = true;
+    })();
+
+    /* ══ Deployment pipeline ═════════════════════════════════════════════
+       Input, rollout, arm -- laid out as the chain it is, with the model that
+       makes each step named on the arrow between them. Both clips are the same
+       number of frames at the same rate, so they line up without re-timing. */
+    (async function realRobot() {
+      const BASE = './assets/media/real';
+      const DETAIL = [
+        { label: 'light', stride: 4 },
+        { label: 'balanced', stride: 3 },
+        { label: 'detailed', stride: 2 },
+        { label: 'full', stride: 1 },
+      ];
+      const END_HOLD_MS = 1000;
+
+      const ARROW_SVG = `<svg class="pipe-arrow" width="70" height="16" viewBox="0 0 70 16" aria-hidden="true">
+          <path d="M2 5.5h44v-4l22 6.5-22 6.5v-4H2z" fill="currentColor"
+                stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+        </svg>`;
+      const ARROW = `<span class="pipe-arrow-wrap">${ARROW_SVG}${ARROW_SVG.replace('pipe-arrow"', 'pipe-arrow pipe-arrow-lit"')}</span>`;
+
+      // a stack of frames for the generator, a waypoint trajectory for the controller
+      const ICON_GEN = `<svg class="pipe-link-icon" width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <rect x="4" y="11" width="23" height="17" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M13.5 16.5v7l6.5-3.5-6.5-3.5z" fill="currentColor"/>
+          <path d="M11.5 7h22a2.5 2.5 0 0 1 2.5 2.5v17" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" opacity=".4"/>
+          <path d="M8 7.5h20a2.5 2.5 0 0 1 2.5 2.5v16" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" opacity=".7"/>
+        </svg>`;
+      const ICON_IDM = `<svg class="pipe-link-icon" width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <path d="M5 30c7-2 9-14 16.5-15.5 4.5-.9 8.5 1 13.5 3.5" stroke="currentColor"
+                stroke-width="1.8" stroke-linecap="round" stroke-dasharray="1.5 4"/>
+          <circle cx="5.5" cy="29.8" r="2.6" fill="currentColor"/>
+          <circle cx="20.5" cy="14.6" r="2.6" fill="currentColor"/>
+          <path d="M29 12.5h7v7" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`;
+
+      const row = document.getElementById('real-row');
+      if (!row) return;
+
+      let manifest;
+      try {
+        manifest = await (await fetch(`${BASE}/cases.json`)).json();
+      } catch (error) {
+        row.innerHTML = '<p class="result-state">The real-robot clips could not be loaded.</p>';
+        return;
+      }
+
+      row.innerHTML = `
+        <div class="pipe-stage pipe-stage-input">
+          <div class="pipe-stage-head"><b>Input</b><span>one frame, one instruction</span></div>
+          <div class="result-stage"><img class="result-still" id="real-initial" alt=""></div>
+          <p class="pipe-prompt"><span class="label">Prompt</span><span id="real-prompt">&mdash;</span></p>
+        </div>
+
+        <div class="pipe-link">
+          ${ICON_GEN}
+          <span class="pipe-link-label">GEM-4D</span>
+          ${ARROW}
+        </div>
+
+        <div class="pipe-stage">
+          <div class="pipe-stage-head is-ours"><b>Predicted rollout</b><span>generated</span></div>
+          <div class="result-stage">
+            <div class="result-holder" data-kind="rgb"><video id="real-gen" muted playsinline preload="auto"></video></div>
+            <div class="result-holder" data-kind="cloud" id="real-cloud" hidden></div>
+          </div>
+        </div>
+
+        <div class="pipe-link">
+          ${ICON_IDM}
+          <span class="pipe-link-label">Inverse dynamics</span>
+          ${ARROW}
+        </div>
+
+        <div class="pipe-stage">
+          <div class="pipe-stage-head"><b>Real robot</b><span>executed</span></div>
+          <div class="result-stage"><video id="real-exec" muted playsinline preload="auto"></video></div>
+        </div>`;
+
+      const initial = document.getElementById('real-initial');
+      const promptOut = document.getElementById('real-prompt');
+      const promptBox = promptOut.closest('.pipe-prompt');
+      const leader = document.getElementById('real-gen');
+      const follower = document.getElementById('real-exec');
+      const cloudHolder = document.getElementById('real-cloud');
+      const rgbHolder = leader.parentElement;
+      const stages = [...row.querySelectorAll('.result-stage')];    // input, rollout, robot
+      const arrows = [...row.querySelectorAll('.pipe-arrow-wrap')];
+
+      const play = document.getElementById('real-play');
+      const detailSeg = document.getElementById('real-detail');
+      const detailLabel = document.getElementById('real-detail-label');
+      const tabs = document.getElementById('real-cases');
+
+      let playing = true;
+      let mode = 'rgb';
+      let detailLevel = 0;
+      let viewer = null;
+      let current = null;
+      let token = 0;
+
+      /* ── the chain, played as a chain ──────────────────────────────────
+         The input lights up, the highlight travels the arrow, the next stage
+         lights and plays, and so on. Waiting is pause-aware, so the sequence
+         holds where it stands instead of running on out of sight. */
+      const lit = (el, on) => el && el.classList.toggle('is-lit', on);
+      const flow = (el, on) => el && el.classList.toggle('is-flowing', on);
+
+      function wait(ms, mine) {
+        return new Promise((resolve) => {
+          let left = ms;
+          const tick = () => {
+            if (token !== mine) return resolve();
+            if (!playing) return setTimeout(tick, 120);
+            left -= 120;
+            if (left <= 0) return resolve();
+            setTimeout(tick, 120);
+          };
+          setTimeout(tick, Math.min(120, ms));
+        });
+      }
+
+      function playClip(video, mine) {
+        return new Promise((resolve) => {
+          const done = () => { video.removeEventListener('ended', done); clearInterval(guard); resolve(); };
+          const guard = setInterval(() => { if (token !== mine) done(); }, 200);
+          video.addEventListener('ended', done);
+          video.currentTime = 0;
+          if (playing) video.play().catch(() => {});
+        });
+      }
+
+      function clearChain() {
+        stages.forEach((el) => lit(el, false));
+        lit(promptBox, false);
+        arrows.forEach((el) => flow(el, false));
+      }
+
+      async function runChain(mine) {
+        while (token === mine) {
+          clearChain();
+          lit(stages[0], true); lit(promptBox, true);
+          await wait(750, mine); if (token !== mine) return;
+
+          flow(arrows[0], true);
+          await wait(700, mine); if (token !== mine) return;
+          lit(stages[0], false); lit(promptBox, false);
+
+          lit(stages[1], true);
+          await wait(280, mine); if (token !== mine) return;
+          if (viewer) { viewer.setFrame(0); if (!viewer.playing) viewer.toggle(); }
+          await playClip(leader, mine); if (token !== mine) return;
+          if (viewer && viewer.playing) viewer.toggle();
+
+          flow(arrows[1], true);
+          await wait(700, mine); if (token !== mine) return;
+          lit(stages[1], false); flow(arrows[0], false);
+
+          lit(stages[2], true);
+          await wait(280, mine); if (token !== mine) return;
+          await playClip(follower, mine); if (token !== mine) return;
+
+          await wait(700, mine);
+        }
+      }
+
+      async function ensureViewer(id, mine) {
+        if (viewer || token !== mine) return;
+        cloudHolder.innerHTML = '<p class="result-state">loading geometry…</p>';
+        try {
+          const created = await createPointCloudViewer(cloudHolder, {
+            basePath: `${BASE}/${id}/cloud`,
+            loop: false,
+            stride: DETAIL[detailLevel].stride,
+          });
+          if (token !== mine) { created.dispose(); return; }
+          viewer = created;
+          cloudHolder.querySelector('.result-state')?.remove();
+          if (!playing) viewer.toggle();
+        } catch (error) {
+          console.error(error);
+          const state = cloudHolder.querySelector('.result-state');
+          if (state) state.textContent = 'geometry unavailable';
+        }
+      }
+
+      let ready = false;   // suppress the tab-strip scroll on the first, offscreen selection
+
+      async function selectCase(id) {
+        const mine = ++token;
+        const entry = manifest.cases.find((c) => c.id === id);
+        current = entry;
+
+        promptOut.textContent = `\u201c${entry.prompt}\u201d`;
+        tabs.querySelectorAll('button').forEach((b) => {
+          const on = b.dataset.case === id;
+          b.setAttribute('aria-selected', String(on));
+          // scroll the strip itself, never the page -- scrollIntoView would jump
+          // the document on first paint, when the tabs are still below the fold
+          if (on && ready) {
+            const pad = 12;
+            const left = b.offsetLeft - pad;
+            const right = b.offsetLeft + b.offsetWidth + pad - tabs.clientWidth;
+            if (left < tabs.scrollLeft) tabs.scrollTo({ left, behavior: 'smooth' });
+            else if (right > tabs.scrollLeft) tabs.scrollTo({ left: right, behavior: 'smooth' });
+          }
+        });
+
+        clearChain();
+        if (viewer) { viewer.dispose(); viewer = null; cloudHolder.innerHTML = ''; }
+
+        initial.src = `${BASE}/${id}/initial.jpg`;
+        initial.alt = `Initial observation for: ${entry.prompt}`;
+        leader.src = `${BASE}/${id}/generated.mp4`;
+        follower.src = `${BASE}/${id}/real.mp4`;
+
+        await Promise.all([leader, follower].map((v) => new Promise((res) => {
+          if (v.readyState >= 2) return res();
+          v.addEventListener('loadeddata', res, { once: true });
+        })));
+        if (token !== mine) return;
+        if (mode === 'cloud') await ensureViewer(id, mine);
+        runChain(mine);
+      }
+
+      play.addEventListener('click', () => {
+        playing = !playing;
+        play.textContent = playing ? 'Pause' : 'Play';
+        // only the clip that the chain is currently on should respond
+        for (const v of [leader, follower]) {
+          if (!v.ended && v.currentTime > 0) { if (playing) v.play(); else v.pause(); }
+        }
+        if (viewer && viewer.playing && !playing) viewer.toggle();
+      });
+
+      DETAIL.forEach((tier, i) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = tier.label;
+        button.setAttribute('aria-pressed', String(i === detailLevel));
+        button.addEventListener('click', () => {
+          detailLevel = i;
+          detailSeg.querySelectorAll('button')
+            .forEach((b, j) => b.setAttribute('aria-pressed', String(j === i)));
+          viewer?.setStride(tier.stride);
+        });
+        detailSeg.append(button);
+      });
+
+      document.getElementById('real-mode').addEventListener('click', async (event) => {
+        const button = event.target.closest('button');
+        if (!button) return;
+        mode = button.dataset.mode;
+        event.currentTarget.querySelectorAll('button')
+          .forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+        const is3d = mode === 'cloud';
+        detailSeg.hidden = !is3d;
+        detailLabel.hidden = !is3d;
+        rgbHolder.hidden = is3d;
+        cloudHolder.hidden = !is3d;
+        if (is3d && current) await ensureViewer(current.id, token);
+      });
+
+      for (const entry of manifest.cases) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.role = 'tab';
+        button.dataset.case = entry.id;
+        button.setAttribute('aria-selected', 'false');
+        button.innerHTML = `
+          <img class="case-tab-preview" src="${BASE}/${entry.id}/thumb.jpg" alt="" loading="lazy">
+          <span class="case-tab-copy">
+            <span class="case-tab-dataset">real robot</span>
+            <span class="case-tab-title">${entry.prompt}</span>
+          </span>`;
+        button.addEventListener('click', () => selectCase(entry.id));
+        tabs.append(button);
+      }
+
+      await selectCase(manifest.cases[0].id);
+      ready = true;
+    })();
+
+    /* The code is not out yet, but the row should still show three resources.
+       Clicking says so rather than leading somewhere that does not exist. */
+    (function codeNote() {
+      const button = document.getElementById('code-link');
+      const note = document.getElementById('code-note');
+      if (!button || !note) return;
+      let timer = null;
+      const hide = () => { note.hidden = true; button.setAttribute('aria-expanded', 'false'); };
+      button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        note.hidden = false;
+        button.setAttribute('aria-expanded', 'true');
+        clearTimeout(timer);
+        timer = setTimeout(hide, 2200);
+      });
+      document.addEventListener('click', hide);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(); });
+    })();
+  </script>
 </body>
 </html>

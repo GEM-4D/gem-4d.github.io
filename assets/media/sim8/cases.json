@@ -1,0 +1,92 @@
+{
+  "cases": [
+    {
+      "id": "droid1",
+      "dataset": "Droid",
+      "prompt": "Pick up the tiger toy and place it into the black bowl",
+      "duration": 2.625,
+      "frames": {
+        "gt": 21,
+        "gem4d": 29,
+        "tesseract": 30
+      }
+    },
+    {
+      "id": "droid2",
+      "dataset": "Droid",
+      "prompt": "Move the cup closer to the pen",
+      "duration": 3.875,
+      "frames": {
+        "gt": 31,
+        "gem4d": 27,
+        "tesseract": 38
+      }
+    },
+    {
+      "id": "rlbench1",
+      "dataset": "RLBench",
+      "prompt": "Close the middle drawer",
+      "duration": 1.75,
+      "frames": {
+        "gt": 14,
+        "gem4d": 13,
+        "tesseract": 29
+      }
+    },
+    {
+      "id": "rlbench2",
+      "dataset": "RLBench",
+      "prompt": "Screw the orange jar lid on",
+      "duration": 3.375,
+      "frames": {
+        "gt": 27,
+        "gem4d": 31,
+        "tesseract": 43
+      }
+    },
+    {
+      "id": "bridge1",
+      "dataset": "Bridge",
+      "prompt": "Sweep into pile",
+      "duration": 11.125,
+      "frames": {
+        "gt": 89,
+        "gem4d": 22,
+        "tesseract": 28
+      }
+    },
+    {
+      "id": "bridge2",
+      "dataset": "Bridge",
+      "prompt": "Unfold the cloth from top left to bottom right",
+      "duration": 5.875,
+      "frames": {
+        "gt": 47,
+        "gem4d": 48,
+        "tesseract": 34
+      }
+    },
+    {
+      "id": "rt11",
+      "dataset": "RT-1",
+      "prompt": "Knock coke can over",
+      "duration": 3.125,
+      "frames": {
+        "gt": 25,
+        "gem4d": 21,
+        "tesseract": 37
+      }
+    },
+    {
+      "id": "rt12",
+      "dataset": "RT-1",
+      "prompt": "Pick orange can from bottom shelf of fridge",
+      "duration": 4.0,
+      "frames": {
+        "gt": 32,
+        "gem4d": 44,
+        "tesseract": 49
+      }
+    }
+  ]
+}

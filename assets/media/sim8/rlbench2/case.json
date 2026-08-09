@@ -1,0 +1,33 @@
+{
+  "case": "rlbench2",
+  "duration": 3.375,
+  "methods": {
+    "gt": {
+      "frames": 27,
+      "fps": 8.0,
+      "grid": [
+        504,
+        378
+      ],
+      "masked": false
+    },
+    "gem4d": {
+      "frames": 31,
+      "fps": 9.1852,
+      "grid": [
+        504,
+        378
+      ],
+      "masked": false
+    },
+    "tesseract": {
+      "frames": 44,
+      "fps": 13.037,
+      "grid": [
+        640,
+        480
+      ],
+      "masked": true
+    }
+  }
+}

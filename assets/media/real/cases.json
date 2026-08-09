@@ -1,0 +1,28 @@
+{
+  "cases": [
+    {
+      "id": "Lift_Numbered_Block",
+      "prompt": "Lift the numbered block with the number 3",
+      "frames": 20,
+      "duration": 2.5
+    },
+    {
+      "id": "Pickup_Cup",
+      "prompt": "Pick up the orange cup",
+      "frames": 22,
+      "duration": 2.75
+    },
+    {
+      "id": "Pick_Up_Pepper",
+      "prompt": "Pick up the red pepper",
+      "frames": 19,
+      "duration": 2.375
+    },
+    {
+      "id": "Trash_In_Trashbin",
+      "prompt": "Put the trash into the trash bin",
+      "frames": 34,
+      "duration": 4.25
+    }
+  ]
+}

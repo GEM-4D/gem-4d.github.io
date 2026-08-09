@@ -1,0 +1,33 @@
+{
+  "case": "rt11",
+  "duration": 3.125,
+  "methods": {
+    "gt": {
+      "frames": 25,
+      "fps": 8.0,
+      "grid": [
+        504,
+        378
+      ],
+      "masked": false
+    },
+    "gem4d": {
+      "frames": 21,
+      "fps": 6.72,
+      "grid": [
+        504,
+        378
+      ],
+      "masked": false
+    },
+    "tesseract": {
+      "frames": 26,
+      "fps": 8.32,
+      "grid": [
+        640,
+        480
+      ],
+      "masked": true
+    }
+  }
+}
