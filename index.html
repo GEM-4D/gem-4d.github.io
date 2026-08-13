@@ -181,9 +181,9 @@
         </div>
 
         <div class="results-toolbar reveal">
-          <span class="seg" id="results-mode" role="group" aria-label="What the panels show">
-            <button type="button" data-mode="rgb" aria-pressed="true">RGB</button>
-            <button type="button" data-mode="cloud" aria-pressed="false">3D</button>
+          <span class="seg seg-mode" id="results-mode" role="group" aria-label="What the panels show">
+            <button type="button" data-mode="rgb" aria-pressed="true"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="1.6" y="3.4" width="16.8" height="13.2" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.2 7.6l5 2.4-5 2.4z" fill="currentColor"/></svg><span>RGB video</span></button>
+            <button type="button" data-mode="cloud" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><g fill="currentColor"><circle cx="4.2" cy="7.1" r="1.35"/><circle cx="9.6" cy="4.6" r="1.35"/><circle cx="15.3" cy="6.6" r="1.35"/><circle cx="6.3" cy="11.6" r="1.35"/><circle cx="11.8" cy="9.6" r="1.35"/><circle cx="16.4" cy="12.2" r="1.35"/><circle cx="4.6" cy="15.6" r="1.35"/><circle cx="10.4" cy="14.6" r="1.35"/></g></svg><span>3D point cloud</span></button>
           </span>
           <button class="viewer-control" type="button" id="results-play">Pause</button>
           <span class="seg-label" id="results-detail-label" hidden>points</span>
@@ -261,9 +261,9 @@
         </div>
 
         <div class="results-toolbar reveal">
-          <span class="seg" id="real-mode" role="group" aria-label="What the middle panel shows">
-            <button type="button" data-mode="rgb" aria-pressed="true">RGB</button>
-            <button type="button" data-mode="cloud" aria-pressed="false">3D</button>
+          <span class="seg seg-mode" id="real-mode" role="group" aria-label="What the middle panel shows">
+            <button type="button" data-mode="rgb" aria-pressed="true"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="1.6" y="3.4" width="16.8" height="13.2" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.2 7.6l5 2.4-5 2.4z" fill="currentColor"/></svg><span>RGB video</span></button>
+            <button type="button" data-mode="cloud" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><g fill="currentColor"><circle cx="4.2" cy="7.1" r="1.35"/><circle cx="9.6" cy="4.6" r="1.35"/><circle cx="15.3" cy="6.6" r="1.35"/><circle cx="6.3" cy="11.6" r="1.35"/><circle cx="11.8" cy="9.6" r="1.35"/><circle cx="16.4" cy="12.2" r="1.35"/><circle cx="4.6" cy="15.6" r="1.35"/><circle cx="10.4" cy="14.6" r="1.35"/></g></svg><span>3D point cloud</span></button>
           </span>
           <button class="viewer-control" type="button" id="real-play">Pause</button>
           <span class="seg-label" id="real-detail-label" hidden>points</span>
@@ -499,6 +499,23 @@
       let current = null;
       let token = 0;                       // guards against a slow case switch landing late
 
+      const modeSeg = document.getElementById('results-mode');
+
+      /* The panels look like plain video until someone finds this control, so it
+         blinks -- but only while the section is actually on screen, and never
+         again once the visitor has used it. */
+      let nudging = true;
+      function stopNudging() {
+        nudging = false;
+        modeSeg.classList.remove('is-nudging');
+      }
+      new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          modeSeg.classList.toggle('is-nudging', nudging && entry.isIntersecting);
+        }
+      }, { threshold: 0.4 }).observe(modeSeg);
+
+
       const cells = {};
       for (const m of METHODS) {
         const cell = document.createElement('div');
@@ -666,14 +683,12 @@
         Object.values(cells).forEach((c) => c.viewer && c.viewer.reframe());
       });
 
-      document.getElementById('results-mode').addEventListener('click', async (event) => {
-        const button = event.target.closest('button');
-        if (!button) return;
-        mode = button.dataset.mode;
-        event.currentTarget.querySelectorAll('button')
-          .forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+      async function applyMode(next) {
+        mode = next;
+        modeSeg.querySelectorAll('button')
+          .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === next)));
 
-        const is3d = mode === 'cloud';
+        const is3d = next === 'cloud';
         // these controls mean nothing while the panels are showing video
         detailSeg.hidden = !is3d;
         detailLabel.hidden = !is3d;
@@ -687,6 +702,13 @@
           const mine = token;
           await Promise.all(Object.values(cells).map((c) => ensureViewer(c, current.case, mine)));
         }
+      }
+
+      modeSeg.addEventListener('click', (event) => {
+        const button = event.target.closest('button');
+        if (!button) return;
+        stopNudging();
+        applyMode(button.dataset.mode);
       });
 
       /* ── case picker ──────────────────────────────────────────────────── */
@@ -812,6 +834,23 @@
       let detailLevel = 0;
       let viewer = null;
       let current = null;
+
+      const modeSeg = document.getElementById('real-mode');
+
+      /* The panels look like plain video until someone finds this control, so it
+         blinks -- but only while the section is actually on screen, and never
+         again once the visitor has used it. */
+      let nudging = true;
+      function stopNudging() {
+        nudging = false;
+        modeSeg.classList.remove('is-nudging');
+      }
+      new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          modeSeg.classList.toggle('is-nudging', nudging && entry.isIntersecting);
+        }
+      }, { threshold: 0.4 }).observe(modeSeg);
+
       let token = 0;
 
       /* ── the chain, played as a chain ──────────────────────────────────
@@ -962,18 +1001,23 @@
         detailSeg.append(button);
       });
 
-      document.getElementById('real-mode').addEventListener('click', async (event) => {
-        const button = event.target.closest('button');
-        if (!button) return;
-        mode = button.dataset.mode;
-        event.currentTarget.querySelectorAll('button')
-          .forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
-        const is3d = mode === 'cloud';
+      async function applyMode(next) {
+        mode = next;
+        modeSeg.querySelectorAll('button')
+          .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === next)));
+        const is3d = next === 'cloud';
         detailSeg.hidden = !is3d;
         detailLabel.hidden = !is3d;
         rgbHolder.hidden = is3d;
         cloudHolder.hidden = !is3d;
         if (is3d && current) await ensureViewer(current.id, token);
+      }
+
+      modeSeg.addEventListener('click', (event) => {
+        const button = event.target.closest('button');
+        if (!button) return;
+        stopNudging();
+        applyMode(button.dataset.mode);
       });
 
       for (const entry of manifest.cases) {

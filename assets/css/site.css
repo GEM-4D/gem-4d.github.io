@@ -1925,6 +1925,80 @@ figcaption {
   font-weight: 600;
 }
 
+/* The mode switch is the one control visitors have to notice -- the panels look
+   like plain video until they find it -- so it is deliberately larger than the
+   rest of the toolbar, spells out both choices, and pulses when it flips itself. */
+.seg-mode {
+  border-color: var(--accent);
+  box-shadow: 0 2px 12px rgba(8, 123, 128, 0.14);
+}
+
+.seg-mode button {
+  display: inline-flex;
+  min-height: 44px;
+  padding: 0 20px;
+  border-left-color: color-mix(in srgb, var(--accent) 32%, transparent);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  align-items: center;
+  gap: 9px;
+}
+
+.seg-mode button svg {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 auto;
+  opacity: 0.85;
+}
+
+.seg-mode button[aria-pressed="false"]:hover {
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+}
+
+/* Two layers, because one alone reads wrong: a halo on the whole control says
+   "look here", and a slow fill on the option nobody has tried says which half
+   is the news. Both stop for good the moment the control is used. */
+.seg-mode.is-nudging {
+  animation: seg-halo 2s ease-in-out infinite;
+}
+
+@keyframes seg-halo {
+  0%, 100% { box-shadow: 0 2px 12px rgba(8, 123, 128, 0.14), 0 0 0 0 rgba(8, 123, 128, 0.34); }
+  50%      { box-shadow: 0 2px 12px rgba(8, 123, 128, 0.14), 0 0 0 7px rgba(8, 123, 128, 0); }
+}
+
+.seg-mode.is-nudging button[aria-pressed="false"] {
+  animation: seg-blink 2s ease-in-out infinite;
+}
+
+@keyframes seg-blink {
+  0%, 100% { background: transparent; color: var(--ink); }
+  50%      { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seg-mode.is-nudging,
+  .seg-mode.is-nudging button[aria-pressed="false"] {
+    animation: none;
+  }
+
+  /* a still, high-contrast state instead of a moving one */
+  .seg-mode.is-nudging button[aria-pressed="false"] {
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    color: var(--accent);
+  }
+}
+
+@media (max-width: 620px) {
+  .seg-mode button {
+    padding: 0 14px;
+    font-size: 12px;
+  }
+}
+
 .seg-label {
   padding-inline: 14px 2px;
   color: var(--quiet);
