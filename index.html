@@ -182,13 +182,13 @@
 
         <div class="results-toolbar reveal">
           <span class="seg seg-mode" id="results-mode" role="group" aria-label="What the panels show">
-            <button type="button" data-mode="rgb" aria-pressed="true"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="1.6" y="3.4" width="16.8" height="13.2" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.2 7.6l5 2.4-5 2.4z" fill="currentColor"/></svg><span>RGB video</span></button>
-            <button type="button" data-mode="cloud" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><g fill="currentColor"><circle cx="4.2" cy="7.1" r="1.35"/><circle cx="9.6" cy="4.6" r="1.35"/><circle cx="15.3" cy="6.6" r="1.35"/><circle cx="6.3" cy="11.6" r="1.35"/><circle cx="11.8" cy="9.6" r="1.35"/><circle cx="16.4" cy="12.2" r="1.35"/><circle cx="4.6" cy="15.6" r="1.35"/><circle cx="10.4" cy="14.6" r="1.35"/></g></svg><span>3D point cloud</span></button>
+            <button type="button" data-mode="rgb" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="1.6" y="3.4" width="16.8" height="13.2" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.2 7.6l5 2.4-5 2.4z" fill="currentColor"/></svg><span>RGB video</span></button>
+            <button type="button" data-mode="cloud" aria-pressed="true"><svg viewBox="0 0 20 20" aria-hidden="true"><g fill="currentColor"><circle cx="4.2" cy="7.1" r="1.35"/><circle cx="9.6" cy="4.6" r="1.35"/><circle cx="15.3" cy="6.6" r="1.35"/><circle cx="6.3" cy="11.6" r="1.35"/><circle cx="11.8" cy="9.6" r="1.35"/><circle cx="16.4" cy="12.2" r="1.35"/><circle cx="4.6" cy="15.6" r="1.35"/><circle cx="10.4" cy="14.6" r="1.35"/></g></svg><span>3D point cloud</span></button>
           </span>
           <button class="viewer-control" type="button" id="results-play">Pause</button>
-          <span class="seg-label" id="results-detail-label" hidden>points</span>
-          <span class="seg" id="results-detail" role="group" aria-label="Point cloud detail" hidden></span>
-          <button class="viewer-control" type="button" id="results-recentre" hidden>Recentre all</button>
+          <span class="seg-label" id="results-detail-label">points</span>
+          <span class="seg" id="results-detail" role="group" aria-label="Point cloud detail"></span>
+          <button class="viewer-control" type="button" id="results-recentre">Recentre all</button>
           <span class="results-clock" id="results-clock">&mdash;</span>
         </div>
 
@@ -262,12 +262,12 @@
 
         <div class="results-toolbar reveal">
           <span class="seg seg-mode" id="real-mode" role="group" aria-label="What the middle panel shows">
-            <button type="button" data-mode="rgb" aria-pressed="true"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="1.6" y="3.4" width="16.8" height="13.2" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.2 7.6l5 2.4-5 2.4z" fill="currentColor"/></svg><span>RGB video</span></button>
-            <button type="button" data-mode="cloud" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><g fill="currentColor"><circle cx="4.2" cy="7.1" r="1.35"/><circle cx="9.6" cy="4.6" r="1.35"/><circle cx="15.3" cy="6.6" r="1.35"/><circle cx="6.3" cy="11.6" r="1.35"/><circle cx="11.8" cy="9.6" r="1.35"/><circle cx="16.4" cy="12.2" r="1.35"/><circle cx="4.6" cy="15.6" r="1.35"/><circle cx="10.4" cy="14.6" r="1.35"/></g></svg><span>3D point cloud</span></button>
+            <button type="button" data-mode="rgb" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="1.6" y="3.4" width="16.8" height="13.2" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.2 7.6l5 2.4-5 2.4z" fill="currentColor"/></svg><span>RGB video</span></button>
+            <button type="button" data-mode="cloud" aria-pressed="true"><svg viewBox="0 0 20 20" aria-hidden="true"><g fill="currentColor"><circle cx="4.2" cy="7.1" r="1.35"/><circle cx="9.6" cy="4.6" r="1.35"/><circle cx="15.3" cy="6.6" r="1.35"/><circle cx="6.3" cy="11.6" r="1.35"/><circle cx="11.8" cy="9.6" r="1.35"/><circle cx="16.4" cy="12.2" r="1.35"/><circle cx="4.6" cy="15.6" r="1.35"/><circle cx="10.4" cy="14.6" r="1.35"/></g></svg><span>3D point cloud</span></button>
           </span>
           <button class="viewer-control" type="button" id="real-play">Pause</button>
-          <span class="seg-label" id="real-detail-label" hidden>points</span>
-          <span class="seg" id="real-detail" role="group" aria-label="Point cloud detail" hidden></span>
+          <span class="seg-label" id="real-detail-label">points</span>
+          <span class="seg" id="real-detail" role="group" aria-label="Point cloud detail"></span>
         </div>
 
         <div class="pipeline reveal" id="real-row"></div>
@@ -494,17 +494,17 @@
 
       let playing = true;
       let holding = false;
-      let mode = 'rgb';
+      let mode = 'cloud';
       let detailLevel = 0;
       let current = null;
       let token = 0;                       // guards against a slow case switch landing late
 
       const modeSeg = document.getElementById('results-mode');
 
-      /* The panels look like plain video until someone finds this control, so it
-         blinks -- but only while the section is actually on screen, and never
-         again once the visitor has used it. */
-      let nudging = true;
+      /* The point cloud is the default view, so the toggle no longer has to be
+         discovered -- it only blinks if a visitor has switched to RGB, to show
+         the way back. */
+      let nudging = false;
       function stopNudging() {
         nudging = false;
         modeSeg.classList.remove('is-nudging');
@@ -522,8 +522,8 @@
         cell.innerHTML = `
           <div class="result-cell-head${m.ours ? ' is-ours' : ''}"><b>${m.label}</b><span>${m.note}</span></div>
           <div class="result-stage">
-            <div class="result-holder" data-kind="rgb"><video muted playsinline preload="auto"></video></div>
-            <div class="result-holder" data-kind="cloud" hidden></div>
+            <div class="result-holder" data-kind="rgb" hidden><video muted playsinline preload="auto"></video></div>
+            <div class="result-holder" data-kind="cloud"></div>
           </div>`;
         row.append(cell);
         cells[m.key] = {
@@ -798,8 +798,8 @@
         <div class="pipe-stage">
           <div class="pipe-stage-head is-ours"><b>Predicted rollout</b><span>generated</span></div>
           <div class="result-stage">
-            <div class="result-holder" data-kind="rgb"><video id="real-gen" muted playsinline preload="auto"></video></div>
-            <div class="result-holder" data-kind="cloud" id="real-cloud" hidden></div>
+            <div class="result-holder" data-kind="rgb" hidden><video id="real-gen" muted playsinline preload="auto"></video></div>
+            <div class="result-holder" data-kind="cloud" id="real-cloud"></div>
           </div>
         </div>
 
@@ -830,17 +830,17 @@
       const tabs = document.getElementById('real-cases');
 
       let playing = true;
-      let mode = 'rgb';
+      let mode = 'cloud';
       let detailLevel = 0;
       let viewer = null;
       let current = null;
 
       const modeSeg = document.getElementById('real-mode');
 
-      /* The panels look like plain video until someone finds this control, so it
-         blinks -- but only while the section is actually on screen, and never
-         again once the visitor has used it. */
-      let nudging = true;
+      /* The point cloud is the default view, so the toggle no longer has to be
+         discovered -- it only blinks if a visitor has switched to RGB, to show
+         the way back. */
+      let nudging = false;
       function stopNudging() {
         nudging = false;
         modeSeg.classList.remove('is-nudging');

@@ -1,12 +1,6 @@
 {
   "cases": [
     {
-      "id": "Lift_Numbered_Block",
-      "prompt": "Lift the numbered block with the number 3",
-      "frames": 20,
-      "duration": 2.5
-    },
-    {
       "id": "Pickup_Cup",
       "prompt": "Pick up the orange cup",
       "frames": 22,
