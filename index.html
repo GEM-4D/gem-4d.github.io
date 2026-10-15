@@ -75,12 +75,9 @@
             <a class="project-link" href="#citation">
               <span>BibTeX</span><small>Citation</small>
             </a>
-            <span class="link-anchor">
-              <button class="project-link" type="button" id="code-link" aria-describedby="code-note">
-                <span>Code</span><small>GitHub</small>
-              </button>
-              <span class="link-note" id="code-note" role="status" hidden>Coming soon</span>
-            </span>
+            <a class="project-link" id="code-link" href="https://github.com/kaichen-z/GEM-4d" target="_blank" rel="noopener noreferrer">
+              <span>Code</span><small>GitHub</small>
+            </a>
           </nav>
         </div>
 
@@ -1040,24 +1037,7 @@
       ready = true;
     })();
 
-    /* The code is not out yet, but the row should still show three resources.
-       Clicking says so rather than leading somewhere that does not exist. */
-    (function codeNote() {
-      const button = document.getElementById('code-link');
-      const note = document.getElementById('code-note');
-      if (!button || !note) return;
-      let timer = null;
-      const hide = () => { note.hidden = true; button.setAttribute('aria-expanded', 'false'); };
-      button.addEventListener('click', (event) => {
-        event.stopPropagation();
-        note.hidden = false;
-        button.setAttribute('aria-expanded', 'true');
-        clearTimeout(timer);
-        timer = setTimeout(hide, 2200);
-      });
-      document.addEventListener('click', hide);
-      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(); });
-    })();
+
   </script>
 </body>
 </html>
