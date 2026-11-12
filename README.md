@@ -68,8 +68,12 @@ page look broken on one particular graphics stack, and how to work around it.
 ## Overview video
 
 The project overview appears before the abstract. Its 92.5-second H.264/AAC video
-uses native playback controls, English narration, burned-in Chinese subtitles,
-and an optional English caption track. It does not autoplay.
+uses native playback controls, English narration, burned-in English subtitles,
+and an optional English caption track. It does not autoplay. The explicit
+`gem4d-overview-en.mp4` is used by the website and English materials; the
+`gem4d-overview-zh.mp4` retains Chinese subtitles for Chinese articles and their
+clickable Word previews. The legacy `gem4d-overview.mp4` also serves the English
+version.
 
 ## Playback trim
 
