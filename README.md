@@ -35,6 +35,7 @@ assets/fonts/               Manrope + IBM Plex Mono, self-hosted
 assets/media/trash/         hero rollout
 assets/media/sim8/          side-by-side comparison, 8 cases x {gt, gem4d, tesseract}
 assets/media/real/          deployment pipeline, 3 real-robot cases
+assets/media/overview/      narrated project video, poster, English captions
 Overview/                   paper figures
 ```
 
@@ -63,6 +64,12 @@ couple of megabytes instead of a hundred.
 Viewers can drop the point count from the caption bar if their machine struggles;
 the choice is remembered. `KNOWN_ISSUES.md` records a driver bug that makes the
 page look broken on one particular graphics stack, and how to work around it.
+
+## Overview video
+
+The project overview appears before the abstract. Its 92.5-second H.264/AAC video
+uses native playback controls, English narration, burned-in Chinese subtitles,
+and an optional English caption track. It does not autoplay.
 
 ## Playback trim
 

@@ -2230,6 +2230,20 @@ figcaption {
   -webkit-line-clamp: 2;
 }
 
+.overview-figure {
+  margin: 0;
+}
+
+.overview-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface-media);
+}
+
 .rollout-video {
   display: block;
   width: 100%;

@@ -1,0 +1,81 @@
+WEBVTT
+
+00:00:00.450 --> 00:00:04.879
+GEM four D. Geometry enhanced video world
+models for robot manipulation.
+
+00:00:06.450 --> 00:00:10.941
+During training, a frozen geometry teacher
+provides features. An auxiliary branch
+
+00:00:10.941 --> 00:00:15.840
+learns to predict them from video features,
+sending geometric supervision back into
+
+00:00:15.840 --> 00:00:17.065
+the video model.
+
+00:00:18.450 --> 00:00:23.488
+At inference, remove the teacher and
+geometry branch. Their training signal
+improves
+
+00:00:23.488 --> 00:00:28.106
+the video backbone without adding geometry
+branch computation to video generation.
+
+00:00:29.450 --> 00:00:34.709
+Our latest cloth rollout shows predicted
+RGB, estimated depth, and scene flow side
+
+00:00:34.709 --> 00:00:35.518
+by side.
+
+00:00:37.450 --> 00:00:42.509
+The can task tests a different interaction:
+contact followed by a change in the
+
+00:00:42.509 --> 00:00:43.232
+object’s orientation.
+
+00:00:44.450 --> 00:00:48.829
+The toy task follows a longer sequence, from
+grasping and lifting to placement in
+
+00:00:48.829 --> 00:00:49.454
+the bowl.
+
+00:00:50.950 --> 00:00:56.255
+An adaptive inverse dynamics system grounds
+the scene in three dimensions, tracks
+
+00:00:56.255 --> 00:01:00.675
+the end effector, repairs unreliable poses,
+and synthesizes an executable
+
+00:01:00.675 --> 00:01:01.117
+trajectory.
+
+00:01:02.450 --> 00:01:07.264
+Here is the predicted cup pickup, alongside
+the recorded execution on a real robot.
+
+00:01:08.450 --> 00:01:13.212
+For the red pepper, compare the generated
+pickup with the recorded robot execution.
+
+00:01:14.450 --> 00:01:19.388
+Across seven RL Bench tasks, mean execution
+success rises from twenty two point
+
+00:01:19.388 --> 00:01:24.705
+seven to seventy five point one percent.
+Both video models use the same action
+
+00:01:24.705 --> 00:01:25.465
+extraction system.
+
+00:01:26.950 --> 00:01:31.927
+Explore the paper, code, and demonstrations
+on the GEM four D project page.
+

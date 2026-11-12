@@ -17,7 +17,7 @@
   <link rel="preload" href="./assets/fonts/manrope-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="./assets/media/trash/depth_atlas.png?v=trim2-20261111" as="image" type="image/png">
   <link rel="preload" href="./assets/media/trash/rgb_atlas.jpg?v=trim2-20261111" as="image" type="image/jpeg">
-  <link rel="stylesheet" href="./assets/css/site.css">
+  <link rel="stylesheet" href="./assets/css/site.css?v=overview-20261111">
   <script defer src="./assets/js/site.js"></script>
 </head>
 <body>
@@ -27,6 +27,7 @@
     <div class="header-inner">
       <a class="brand" href="#home" aria-label="GEM-4D home">GEM-4D</a>
       <nav class="site-nav" aria-label="Primary navigation" data-nav>
+        <a href="#overview">Video</a>
         <a href="#abstract">Abstract</a>
         <a href="#comparison">Comparison</a>
         <a href="#real-robot">Real robot</a>
@@ -102,6 +103,26 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ══ Overview video ════════════════════════════════════════════ -->
+    <section class="section overview-section" id="overview" data-section aria-labelledby="overview-heading">
+      <div class="section-inner">
+        <div class="section-heading reveal">
+          <h2 id="overview-heading">GEM-4D in 90 seconds</h2>
+          <p>From teaching geometry during training to RGB, depth, scene flow, and real-robot execution.</p>
+        </div>
+        <figure class="overview-figure reveal">
+          <video class="overview-video" id="overview-video" controls playsinline preload="metadata"
+                 width="1920" height="1080" aria-labelledby="overview-heading" aria-describedby="overview-caption"
+                 poster="./assets/media/overview/gem4d-overview-poster.jpg">
+            <source src="./assets/media/overview/gem4d-overview.mp4" type="video/mp4">
+            <track kind="captions" src="./assets/media/overview/gem4d-overview-en.vtt" srclang="en" label="English">
+            <p><a href="./assets/media/overview/gem4d-overview.mp4">Watch the GEM-4D overview video.</a></p>
+          </video>
+          <figcaption id="overview-caption">English narration with Chinese subtitles. Use the caption menu for English captions.</figcaption>
+        </figure>
       </div>
     </section>
 
