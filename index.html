@@ -30,6 +30,7 @@
         <a href="#abstract">Abstract</a>
         <a href="#comparison">Comparison</a>
         <a href="#real-robot">Real robot</a>
+        <a href="#wan14b-rollouts">Wan‑14B demos</a>
         <a href="#citation">Citation</a>
       </nav>
       <div class="header-actions">
@@ -316,6 +317,51 @@
     </section>
 
 
+    <section class="section" id="wan14b-rollouts" data-section>
+      <div class="section-inner section-inner-wide">
+        <div class="section-heading reveal">
+          <h2>GEM-4D Wan-14B rollouts</h2>
+          <p>Select a task to view the generated RGB video, estimated depth, and scene flow.</p>
+        </div>
+
+        <p class="results-prompt">
+          <span class="label">Prompt</span>
+          <span class="text" id="wan14b-prompt" aria-live="polite">Pick up the yellow rubber duck</span>
+        </p>
+        <video class="rollout-video" id="wan14b-video" aria-labelledby="wan14b-prompt"
+               src="./assets/media/wan14b/rubber-duck.mp4"
+               poster="./assets/media/wan14b/rubber-duck-poster.jpg"
+               controls loop muted playsinline preload="metadata"></video>
+
+        <div class="case-tabs rollout-cases" data-rollout-picker role="group" aria-label="Wan-14B tasks">
+          <button type="button" data-rollout="rubber-duck" aria-controls="wan14b-video" aria-pressed="true">
+            <img class="case-tab-preview" src="./assets/media/wan14b/rubber-duck-thumb.jpg" alt="" loading="lazy">
+            <span class="case-tab-copy"><span class="case-tab-title">Pick up the yellow rubber duck</span></span>
+          </button>
+          <button type="button" data-rollout="cactus-pot" aria-controls="wan14b-video" aria-pressed="false">
+            <img class="case-tab-preview" src="./assets/media/wan14b/cactus-pot-thumb.jpg" alt="" loading="lazy">
+            <span class="case-tab-copy"><span class="case-tab-title">Pick up the small cactus pot</span></span>
+          </button>
+          <button type="button" data-rollout="orange-juice" aria-controls="wan14b-video" aria-pressed="false">
+            <img class="case-tab-preview" src="./assets/media/wan14b/orange-juice-thumb.jpg" alt="" loading="lazy">
+            <span class="case-tab-copy"><span class="case-tab-title">Pick up the glass of orange juice</span></span>
+          </button>
+          <button type="button" data-rollout="unfold-cloth" aria-controls="wan14b-video" aria-pressed="false">
+            <img class="case-tab-preview" src="./assets/media/wan14b/unfold-cloth-thumb.jpg" alt="" loading="lazy">
+            <span class="case-tab-copy"><span class="case-tab-title">Unfold the cloth from top left to bottom right</span></span>
+          </button>
+          <button type="button" data-rollout="orange-jar-lid" aria-controls="wan14b-video" aria-pressed="false">
+            <img class="case-tab-preview" src="./assets/media/wan14b/orange-jar-lid-thumb.jpg" alt="" loading="lazy">
+            <span class="case-tab-copy"><span class="case-tab-title">Screw the orange jar lid on</span></span>
+          </button>
+          <button type="button" data-rollout="knock-can" aria-controls="wan14b-video" aria-pressed="false">
+            <img class="case-tab-preview" src="./assets/media/wan14b/knock-can-thumb.jpg" alt="" loading="lazy">
+            <span class="case-tab-copy"><span class="case-tab-title">Knock coke can over</span></span>
+          </button>
+        </div>
+      </div>
+    </section>
+
     <section class="section citation-section" id="citation" data-section>
       <div class="section-inner citation-layout">
         <div class="citation-copy reveal">
@@ -451,7 +497,7 @@
     }
 
     /* ══ Interactive results ══════════════════════════════════════════════
-       Eight cases, three methods each. The clips differ in length, so each is
+       Three methods per case. The clips differ in length, so each is
        trimmed where its own pipeline recorded the end and re-timed to a shared
        duration: all three start together and finish together. In 3D the three
        panels share a single orbit. */

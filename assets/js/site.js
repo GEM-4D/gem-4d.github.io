@@ -186,10 +186,33 @@ function initCitationCopy() {
   });
 }
 
+function initRolloutPicker() {
+  const picker = document.querySelector("[data-rollout-picker]");
+  const video = document.querySelector("#wan14b-video");
+  const prompt = document.querySelector("#wan14b-prompt");
+  if (!picker || !video || !prompt) return;
+
+  picker.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-rollout]");
+    if (!button || button.getAttribute("aria-pressed") === "true") return;
+
+    picker.querySelector('[aria-pressed="true"]').setAttribute("aria-pressed", "false");
+    button.setAttribute("aria-pressed", "true");
+    prompt.textContent = button.querySelector(".case-tab-title").textContent;
+
+    const wasPlaying = !video.paused;
+    const source = `./assets/media/wan14b/${button.dataset.rollout}`;
+    video.poster = `${source}-poster.jpg`;
+    video.src = `${source}.mp4`;
+    if (wasPlaying) video.play().catch(() => {});
+  });
+}
+
 function init() {
   document.documentElement.classList.add("js");
   initNavigation();
   initCitationCopy();
+  initRolloutPicker();
   initRevealObserver();
   initSectionObserver();
 }

@@ -56,17 +56,6 @@
       }
     },
     {
-      "id": "bridge2",
-      "dataset": "Bridge",
-      "prompt": "Unfold the cloth from top left to bottom right",
-      "duration": 5.875,
-      "frames": {
-        "gt": 47,
-        "gem4d": 48,
-        "tesseract": 34
-      }
-    },
-    {
       "id": "rt11",
       "dataset": "RT-1",
       "prompt": "Knock coke can over",
