@@ -1,9 +1,9 @@
 {
   "width": 504,
   "height": 378,
-  "frames": 22,
+  "frames": 20,
   "cols": 7,
-  "rows": 4,
+  "rows": 3,
   "fx": 496.0,
   "fy": 496.0,
   "cx": 252.0,
@@ -60,5 +60,8 @@
     1.9045,
     1.9045,
     1.9045
-  ]
+  ],
+  "sourceFrames": 22,
+  "trimmedPrefixFrames": 2,
+  "trimmedPrefixSeconds": 0.25
 }

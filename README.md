@@ -34,7 +34,7 @@ assets/vendor/              three.js r180 + OrbitControls, self-hosted
 assets/fonts/               Manrope + IBM Plex Mono, self-hosted
 assets/media/trash/         hero rollout
 assets/media/sim8/          side-by-side comparison, 8 cases x {gt, gem4d, tesseract}
-assets/media/real/          deployment pipeline, 4 real-robot cases
+assets/media/real/          deployment pipeline, 3 real-robot cases
 Overview/                   paper figures
 ```
 
@@ -63,3 +63,10 @@ couple of megabytes instead of a hundred.
 Viewers can drop the point count from the caption bar if their machine struggles;
 the choice is remembered. `KNOWN_ISSUES.md` records a driver bug that makes the
 page look broken on one particular graphics stack, and how to work around it.
+
+## Playback trim
+
+The hero rollout and all three real-robot case pairs omit the first two source
+frames (0.25 seconds at 8 fps). RGB movies and their point-cloud atlases are
+trimmed together; source frame counts and trim offsets are recorded in metadata.
+The initial observation remains the original conditioning image.

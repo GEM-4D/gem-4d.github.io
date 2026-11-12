@@ -89,6 +89,7 @@ export async function createPointCloudViewer(root, options = {}) {
   // a destructured const throws.
   let {
     basePath,
+    assetVersion = null,   // keep metadata and both atlases on one published revision
     background = 0xffffff,
     resumeDelayMs = 2600,
     rotateSpeed = 1.0,      // 1:1 with the pointer; lower feels like pushing through mud
@@ -103,7 +104,8 @@ export async function createPointCloudViewer(root, options = {}) {
     onView = null,     // fired while the viewer drags, for linking panels together
   } = options;
 
-  const meta = await fetch(`${basePath}/meta.json`).then((response) => {
+  const assetUrl = (name) => `${basePath}/${name}${assetVersion ? '?v=' + encodeURIComponent(assetVersion) : ''}`;
+  const meta = await fetch(assetUrl('meta.json')).then((response) => {
     if (!response.ok) throw new Error(`meta.json: ${response.status}`);
     return response.json();
   });
@@ -142,8 +144,8 @@ export async function createPointCloudViewer(root, options = {}) {
   });
 
   const [depthTex, colorTex] = await Promise.all([
-    loadTexture(`${basePath}/depth_atlas.png`),
-    loadTexture(`${basePath}/rgb_atlas.jpg`),
+    loadTexture(assetUrl('depth_atlas.png')),
+    loadTexture(assetUrl('rgb_atlas.jpg')),
   ]);
 
   /* ── geometry: one vertex per source pixel ────────────────────────────── */

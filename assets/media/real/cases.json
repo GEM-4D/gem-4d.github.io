@@ -3,20 +3,29 @@
     {
       "id": "Pickup_Cup",
       "prompt": "Pick up the orange cup",
-      "frames": 22,
-      "duration": 2.75
+      "frames": 20,
+      "duration": 2.5,
+      "sourceFrames": 22,
+      "trimmedPrefixFrames": 2,
+      "trimmedPrefixSeconds": 0.25
     },
     {
       "id": "Pick_Up_Pepper",
       "prompt": "Pick up the red pepper",
-      "frames": 19,
-      "duration": 2.375
+      "frames": 17,
+      "duration": 2.125,
+      "sourceFrames": 19,
+      "trimmedPrefixFrames": 2,
+      "trimmedPrefixSeconds": 0.25
     },
     {
       "id": "Trash_In_Trashbin",
       "prompt": "Put the trash into the trash bin",
-      "frames": 34,
-      "duration": 4.25
+      "frames": 32,
+      "duration": 4.0,
+      "sourceFrames": 34,
+      "trimmedPrefixFrames": 2,
+      "trimmedPrefixSeconds": 0.25
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "width": 504,
   "height": 378,
-  "frames": 34,
+  "frames": 32,
   "cols": 7,
   "rows": 5,
   "fx": 524.0,
@@ -60,5 +60,8 @@
     2.0528,
     2.0528,
     2.0528
-  ]
+  ],
+  "sourceFrames": 34,
+  "trimmedPrefixFrames": 2,
+  "trimmedPrefixSeconds": 0.25
 }

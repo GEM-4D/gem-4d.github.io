@@ -15,8 +15,8 @@
   <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
   <title>GEM-4D | Geometry-Enhanced Video World Models for Robot Manipulation</title>
   <link rel="preload" href="./assets/fonts/manrope-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="./assets/media/trash/depth_atlas.png" as="image" type="image/png">
-  <link rel="preload" href="./assets/media/trash/rgb_atlas.jpg" as="image" type="image/jpeg">
+  <link rel="preload" href="./assets/media/trash/depth_atlas.png?v=trim2-20261111" as="image" type="image/png">
+  <link rel="preload" href="./assets/media/trash/rgb_atlas.jpg?v=trim2-20261111" as="image" type="image/jpeg">
   <link rel="stylesheet" href="./assets/css/site.css">
   <script defer src="./assets/js/site.js"></script>
 </head>
@@ -86,7 +86,7 @@
           <div class="hero-viewer-shell">
             <div class="hero-viewer" id="rollout-viewer">
               <img class="viewer-poster" id="rollout-poster"
-                   src="./assets/media/trash/poster.jpg" alt="GEM-4D 3D rollout of the trash-in-bin scene">
+                   src="./assets/media/trash/poster.jpg?v=trim2-20261111" alt="GEM-4D 3D rollout of the trash-in-bin scene">
               <p class="viewer-state" id="rollout-state">Loading the 3D rollout...</p>
             </div>
             <div class="viewer-caption">
@@ -439,7 +439,7 @@
     { "imports": { "three": "./assets/vendor/three.module.min.js" } }
   </script>
   <script type="module">
-    import { createPointCloudViewer } from './assets/js/pointcloud-viewer.js';
+    import { createPointCloudViewer } from './assets/js/pointcloud-viewer.js?v=trim2-20261111';
     window.__rolloutStarted = true;
 
     const stage = document.getElementById('rollout-viewer');
@@ -466,6 +466,7 @@
 
       const viewer = await createPointCloudViewer(stage, {
         basePath: './assets/media/trash',
+        assetVersion: 'trim2-20261111',
         stride: DETAIL[level].stride,
       });
       status.remove();
@@ -819,7 +820,7 @@
 
       let manifest;
       try {
-        manifest = await (await fetch(`${BASE}/cases.json`)).json();
+        manifest = await (await fetch(`${BASE}/cases.json?v=trim2-20261111`)).json();
       } catch (error) {
         row.innerHTML = '<p class="result-state">The real-robot clips could not be loaded.</p>';
         return;
@@ -967,6 +968,7 @@
         try {
           const created = await createPointCloudViewer(cloudHolder, {
             basePath: `${BASE}/${id}/cloud`,
+            assetVersion: 'trim2-20261111',
             loop: false,
             stride: DETAIL[detailLevel].stride,
           });
@@ -1008,8 +1010,8 @@
 
         initial.src = `${BASE}/${id}/initial.jpg`;
         initial.alt = `Initial observation for: ${entry.prompt}`;
-        leader.src = `${BASE}/${id}/generated.mp4`;
-        follower.src = `${BASE}/${id}/real.mp4`;
+        leader.src = `${BASE}/${id}/generated.mp4?v=trim2-20261111`;
+        follower.src = `${BASE}/${id}/real.mp4?v=trim2-20261111`;
 
         await Promise.all([leader, follower].map((v) => new Promise((res) => {
           if (v.readyState >= 2) return res();
